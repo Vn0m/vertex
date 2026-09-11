@@ -26,7 +26,7 @@ git submodule update --init --recursive
 ## Layout
 
 ```
-engine/   the vertex library
+vertex/   the engine, built as a static library
 glade/    the game executable
 vendor/   third-party dependencies
 ```
