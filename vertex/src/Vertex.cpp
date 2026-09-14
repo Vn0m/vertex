@@ -1,4 +1,4 @@
-#include "vertex/Vertex.h"
+#include "../include/vertex/Vertex.h"
 
 namespace vertex {
 
