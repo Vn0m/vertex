@@ -1,5 +1,5 @@
-#include "../include/vertex/Shader.h"
 #include <glad/gl.h>
+#include "../include/vertex/Shader.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>

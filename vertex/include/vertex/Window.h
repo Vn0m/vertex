@@ -19,6 +19,7 @@ namespace Vertex {
             void pollEvents();
             void swapBuffers();
 
+            bool shouldClose() const;
         private:
             GLFWwindow* mWindowPtr{nullptr};
             static void framebufferSizeCallback(GLFWwindow* window,int width, int height);

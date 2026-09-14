@@ -4,7 +4,7 @@ namespace Vertex {
     class Renderer {
         public:
             Renderer();
-            void draw();
+            void Draw();
         private:
             unsigned int VAO_{0};
             unsigned int VBO_{0};

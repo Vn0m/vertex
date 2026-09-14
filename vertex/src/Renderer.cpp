@@ -1,6 +1,5 @@
-#include "../include/vertex/Renderer.h"
-#include "../include/vertex/Window.h"
 #include <glad/gl.h>
+#include "../include/vertex/Renderer.h"
 namespace Vertex {
 
     Renderer::Renderer() {
@@ -23,21 +22,7 @@ namespace Vertex {
     glBindVertexArray(0);
     }
 
-    void Renderer::draw() {
-        float vertices[] = {
-            -0.5f, -0.5f, 0.0f,   // bottom-left
-            0.5f, -0.5f, 0.0f,   // bottom-right
-            0.0f,  0.5f, 0.0f,   // top
-        };
-
-        glGenVertexArrays(1,&VAO_);
-        glGenBuffers(1, &VBO_);
-
-        glBindVertexArray(VAO_);
-        glBindBuffer(GL_ARRAY_BUFFER,VBO_);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
+    void Renderer::Draw() {
+        
     }
 } // end namespace vertex

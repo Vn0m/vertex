@@ -78,4 +78,8 @@ void Window::swapBuffers() {
     glfwSwapBuffers(mWindowPtr);
 }
 
+bool Window::shouldClose() const{
+    return glfwWindowShouldClose(mWindowPtr);
+}
+
 } // end namespace Vertex
