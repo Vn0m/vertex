@@ -6,3 +6,4 @@ PointerAlignment: Left
 DerivePointerAlignment: false
 AllowShortFunctionsOnASingleLine: Empty
 FixNamespaceComments: false
+SortIncludes: false
