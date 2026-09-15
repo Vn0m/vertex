@@ -1,23 +1,20 @@
 #include <glad/gl.h>
-#include <vertex/Vertex.h>
 #include <vertex/Shader.h>
+#include <vertex/Vertex.h>
 #include <vertex/Window.h>
+
 #include <cstdio>
 
 using namespace Vertex;
 int main() {
-
     std::printf("glade on vertex %s\n", vertex::version());
     Window window;
     window.Create({800, 600}, "Cervantes");
 
-    Shader shader{ASSET_DIR "/shaders/example.vert",
-              ASSET_DIR "/shaders/example.frag"};
+    Shader shader{ASSET_DIR "/shaders/example.vert", ASSET_DIR "/shaders/example.frag"};
 
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f,
     };
 
     unsigned int vao, vbo;
