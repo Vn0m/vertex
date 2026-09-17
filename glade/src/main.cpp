@@ -1,5 +1,4 @@
 #include <vertex/Renderer.h>
-#include <vertex/Vertex.h>
 #include <vertex/Window.h>
 
 int main() {
