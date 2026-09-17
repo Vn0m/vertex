@@ -4,7 +4,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include <stdexcept>
+#include <cstdio>
 
 namespace vertex {
 
@@ -27,9 +27,10 @@ Window::~Window() {
     glfwTerminate();
 }
 
-void Window::Create(const Dimensions& dimensions, const std::string& title) {
+bool Window::create(const Dimensions& dimensions, const std::string& title) {
     if (!glfwInit()) {
-        throw std::runtime_error("glfwInit failed");
+        std::fprintf(stderr, "glfwInit failed\n");
+        return false;
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -49,8 +50,9 @@ void Window::Create(const Dimensions& dimensions, const std::string& title) {
                                   nullptr, nullptr);
 
     if (mWindowPtr == nullptr) {
+        std::fprintf(stderr, "failed to create GLFW window\n");
         glfwTerminate();
-        throw std::runtime_error("failed to create GLFW window");
+        return false;
     }
 
     // make context(drawing context) means "if you draw something, draw it here at this
@@ -60,13 +62,15 @@ void Window::Create(const Dimensions& dimensions, const std::string& title) {
     glfwSetFramebufferSizeCallback(mWindowPtr, framebufferSizeCallback);
 
     if (!gladLoadGL(glfwGetProcAddress)) {
+        std::fprintf(stderr, "failed to load OpenGL functions\n");
         glfwDestroyWindow(mWindowPtr);
         mWindowPtr = nullptr;
         glfwTerminate();
-        throw std::runtime_error("failed to load OpenGL functions");
+        return false;
     }
 
     glViewport(0, 0, dimensions.width, dimensions.height);
+    return true;
 }
 
 Dimensions Window::getSize() const {

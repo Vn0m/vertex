@@ -19,7 +19,7 @@ void Shader::loadShader(const std::string& vertFileName,
     unsigned int vertexShader{0};
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
-    std::string vertexSourceCode{ReadFile(vertFileName)};
+    std::string vertexSourceCode{readFile(vertFileName)};
     const char* ptr = vertexSourceCode.c_str();
 
     glShaderSource(vertexShader, 1, &ptr, NULL);
@@ -38,7 +38,7 @@ void Shader::loadShader(const std::string& vertFileName,
     unsigned int fragShader{0};
     fragShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-    std::string fragSourceCode{ReadFile(fragFileName)};
+    std::string fragSourceCode{readFile(fragFileName)};
     ptr = fragSourceCode.c_str();
 
     glShaderSource(fragShader, 1, &ptr, NULL);
@@ -101,7 +101,7 @@ void Shader::supplyIntUniform(const std::string& uniformName,
     }
 }
 
-void Shader::Bind() {
+void Shader::bind() {
     glUseProgram(mShader);
 }
 
@@ -109,7 +109,7 @@ Shader::~Shader() {
     glDeleteProgram(mShader);
 }
 
-std::string Shader::ReadFile(const std::string& fileName) {
+std::string Shader::readFile(const std::string& fileName) {
     std::ifstream input{fileName};
     if (!input.is_open()) {
         std::cout << "Failed to open shader file: " << fileName << std::endl;

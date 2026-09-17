@@ -7,10 +7,17 @@ add_library(vertex STATIC
 
 target_include_directories(vertex PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+target_link_libraries(vertex
+    PUBLIC  glm
+    PRIVATE glad glfw
+)
+
+target_compile_definitions(vertex PRIVATE
+    VERTEX_ASSET_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets"
+)
+
 if(MSVC)
     target_compile_options(vertex PRIVATE /W4)
 else()
     target_compile_options(vertex PRIVATE -Wall -Wextra -Wpedantic)
 endif()
-
-target_link_libraries(vertex PUBLIC glad glfw glm)

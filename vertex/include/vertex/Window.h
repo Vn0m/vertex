@@ -16,7 +16,7 @@ public:
     Window(const Window&) = delete;
     Window& operator=(const Window&) = delete;
 
-    void Create(const Dimensions& dimensions, const std::string& title);
+    bool create(const Dimensions& dimensions, const std::string& title);
     Dimensions getSize() const;
 
     void pollEvents();
