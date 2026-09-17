@@ -1,11 +1,12 @@
-#include "../include/vertex/Shader.h"
+#include "vertex/Shader.h"
 
 #include <glad/gl.h>
 
 #include <fstream>
 #include <iostream>
 #include <sstream>
-namespace Vertex {
+
+namespace vertex {
 
 Shader::Shader() {}
 
@@ -118,4 +119,5 @@ std::string Shader::ReadFile(const std::string& fileName) {
     ss << input.rdbuf();
     return ss.str();
 }
-}  // end namespace vertex
+
+}

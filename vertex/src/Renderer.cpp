@@ -1,7 +1,8 @@
-#include "../include/vertex/Renderer.h"
+#include "vertex/Renderer.h"
 
 #include <glad/gl.h>
-namespace Vertex {
+
+namespace vertex {
 
 Renderer::Renderer() {
     // handles the mixing of color based on opacity of different overlapping images
@@ -23,5 +24,12 @@ Renderer::Renderer() {
     glBindVertexArray(0);
 }
 
+Renderer::~Renderer() {
+    glDeleteBuffers(1, &EBO_);
+    glDeleteBuffers(1, &VBO_);
+    glDeleteVertexArrays(1, &VAO_);
+}
+
 void Renderer::Draw() {}
-}  // end namespace vertex
+
+}
