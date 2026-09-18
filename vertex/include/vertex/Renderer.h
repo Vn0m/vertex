@@ -16,6 +16,8 @@ public:
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
 
+    bool init();
+
     void clear(const glm::vec4& color);
     void drawQuad();
 

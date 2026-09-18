@@ -30,9 +30,21 @@ std::string engineAsset(const char* relative) {
 
 namespace vertex {
 
-Renderer::Renderer()
-    : mShader(std::make_unique<Shader>(engineAsset("shaders/sprite.vert"),
-                                       engineAsset("shaders/sprite.frag"))) {
+Renderer::Renderer() = default;
+
+Renderer::~Renderer() {
+    glDeleteBuffers(1, &mEbo);
+    glDeleteBuffers(1, &mVbo);
+    glDeleteVertexArrays(1, &mVao);
+}
+
+bool Renderer::init() {
+    mShader = std::make_unique<Shader>(engineAsset("shaders/sprite.vert"),
+                                       engineAsset("shaders/sprite.frag"));
+    if (!mShader->valid()) {
+        return false;
+    }
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -52,12 +64,7 @@ Renderer::Renderer()
     glEnableVertexAttribArray(0);
 
     glBindVertexArray(0);
-}
-
-Renderer::~Renderer() {
-    glDeleteBuffers(1, &mEbo);
-    glDeleteBuffers(1, &mVbo);
-    glDeleteVertexArrays(1, &mVao);
+    return true;
 }
 
 void Renderer::clear(const glm::vec4& color) {

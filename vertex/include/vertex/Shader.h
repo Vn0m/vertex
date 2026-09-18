@@ -7,21 +7,21 @@ namespace vertex {
 
 class Shader {
 public:
-    Shader();
-    Shader(const std::string& vertFileName, const std::string& fragFileName);
+    Shader() = default;
+    Shader(const std::string& vertPath, const std::string& fragPath);
     ~Shader();
 
     Shader(const Shader&) = delete;
     Shader& operator=(const Shader&) = delete;
 
-    void loadShader(const std::string& vertFileName, const std::string& fragFileName);
+    bool loadShader(const std::string& vertPath, const std::string& fragPath);
+    bool valid() const;
+
     void supplyIntUniform(const std::string& uniformName, const std::vector<int>& vals);
-    void bind();
+    void bind() const;
 
 private:
-    unsigned int mShader{0};
-
-    std::string readFile(const std::string& filename);
+    unsigned int mProgram{0};
 };
 
 }

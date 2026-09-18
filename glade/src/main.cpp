@@ -10,6 +10,9 @@ int main() {
     window.setVsync(true);
 
     vertex::Renderer renderer;
+    if (!renderer.init()) {
+        return 1;
+    }
 
     while (!window.shouldClose()) {
         window.pollEvents();
