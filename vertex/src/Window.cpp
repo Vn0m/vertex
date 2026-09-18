@@ -5,19 +5,16 @@
 
 #include <cstdio>
 
-namespace vertex {
-
 namespace {
 
-// handles window resizing. it runs everytime window is resized
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
-    // to prevent unused param warning
     (void)window;
-    // updates opengl viewport to map to new window dimensions
     glViewport(0, 0, width, height);
 }
 
 }
+
+namespace vertex {
 
 Window::~Window() {
     if (mWindowPtr != nullptr) {
@@ -28,7 +25,7 @@ Window::~Window() {
 
 bool Window::create(const Dimensions& dimensions, const std::string& title) {
     if (!glfwInit()) {
-        std::fprintf(stderr, "glfwInit failed\n");
+        std::fprintf(stderr, "window: glfwInit failed\n");
         return false;
     }
 
@@ -36,34 +33,25 @@ bool Window::create(const Dimensions& dimensions, const std::string& title) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // required on macOS, where a 3.2+ core context is refused without it
+    // macOS refuses a 3.2+ core context without this
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-
-    // hint for use on wayland display servers
     glfwWindowHintString(GLFW_WAYLAND_APP_ID, "glade");
 
     mWindowPtr = glfwCreateWindow(dimensions.width, dimensions.height, title.c_str(),
                                   nullptr, nullptr);
 
     if (mWindowPtr == nullptr) {
-        std::fprintf(stderr, "failed to create GLFW window\n");
+        std::fprintf(stderr, "window: failed to create GLFW window\n");
         glfwTerminate();
         return false;
     }
 
-    // make context(drawing context) means "if you draw something, draw it here at this
-    // window" the window controlled by this pointer
     glfwMakeContextCurrent(mWindowPtr);
-
     glfwSetFramebufferSizeCallback(mWindowPtr, framebufferSizeCallback);
 
     if (!gladLoadGL(glfwGetProcAddress)) {
-        std::fprintf(stderr, "failed to load OpenGL functions\n");
-        glfwDestroyWindow(mWindowPtr);
-        mWindowPtr = nullptr;
-        glfwTerminate();
+        std::fprintf(stderr, "window: failed to load OpenGL functions\n");
         return false;
     }
 

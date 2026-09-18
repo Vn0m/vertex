@@ -6,7 +6,6 @@ int main() {
     if (!window.create({800, 600}, "Glade")) {
         return 1;
     }
-
     window.setVsync(true);
 
     vertex::Renderer renderer;
