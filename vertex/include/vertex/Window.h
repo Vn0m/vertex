@@ -17,7 +17,9 @@ public:
     Window& operator=(const Window&) = delete;
 
     bool create(const Dimensions& dimensions, const std::string& title);
-    Dimensions getSize() const;
+    Dimensions framebufferSize() const;
+
+    void setVsync(bool enabled);
 
     void pollEvents();
     void swapBuffers();

@@ -1,7 +1,6 @@
 #include "vertex/Window.h"
 
 #include <glad/gl.h>
-
 #include <GLFW/glfw3.h>
 
 #include <cstdio>
@@ -40,8 +39,7 @@ bool Window::create(const Dimensions& dimensions, const std::string& title) {
     // required on macOS, where a 3.2+ core context is refused without it
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
-    glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     // hint for use on wayland display servers
     glfwWindowHintString(GLFW_WAYLAND_APP_ID, "glade");
@@ -69,14 +67,19 @@ bool Window::create(const Dimensions& dimensions, const std::string& title) {
         return false;
     }
 
-    glViewport(0, 0, dimensions.width, dimensions.height);
+    const Dimensions framebuffer = framebufferSize();
+    glViewport(0, 0, framebuffer.width, framebuffer.height);
     return true;
 }
 
-Dimensions Window::getSize() const {
+Dimensions Window::framebufferSize() const {
     int width{0}, height{0};
-    glfwGetWindowSize(mWindowPtr, &width, &height);
+    glfwGetFramebufferSize(mWindowPtr, &width, &height);
     return {width, height};
+}
+
+void Window::setVsync(bool enabled) {
+    glfwSwapInterval(enabled ? 1 : 0);
 }
 
 void Window::pollEvents() {
