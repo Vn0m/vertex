@@ -27,6 +27,9 @@ public:
     bool shouldClose() const;
 
 private:
+    bool tryCreate(const Dimensions& dimensions, const std::string& title);
+    void destroy();
+
     GLFWwindow* mWindowPtr{nullptr};
 };
 

@@ -17,13 +17,26 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 namespace vertex {
 
 Window::~Window() {
+    destroy();
+}
+
+void Window::destroy() {
     if (mWindowPtr != nullptr) {
         glfwDestroyWindow(mWindowPtr);
+        mWindowPtr = nullptr;
     }
     glfwTerminate();
 }
 
 bool Window::create(const Dimensions& dimensions, const std::string& title) {
+    if (tryCreate(dimensions, title)) {
+        return true;
+    }
+    destroy();
+    return false;
+}
+
+bool Window::tryCreate(const Dimensions& dimensions, const std::string& title) {
     if (!glfwInit()) {
         std::fprintf(stderr, "window: glfwInit failed\n");
         return false;
@@ -43,7 +56,6 @@ bool Window::create(const Dimensions& dimensions, const std::string& title) {
 
     if (mWindowPtr == nullptr) {
         std::fprintf(stderr, "window: failed to create GLFW window\n");
-        glfwTerminate();
         return false;
     }
 
