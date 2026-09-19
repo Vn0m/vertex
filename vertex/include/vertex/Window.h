@@ -1,23 +1,25 @@
 #pragma once
 
-#include <glad/gl.h>
-
-#include <GLFW/glfw3.h>
-
-#include <functional>
 #include <string>
 
-#include "types.h"
+#include "vertex/types.h"
 
-namespace Vertex {
+struct GLFWwindow;
+
+namespace vertex {
 
 class Window {
 public:
+    Window() = default;
     ~Window();
 
-    // Dimension struct is an int32_t width, and an int32_t height
-    void Create(const Dimensions& dimensions, const std::string& title);
-    Dimensions getSize() const;
+    Window(const Window&) = delete;
+    Window& operator=(const Window&) = delete;
+
+    bool create(const Dimensions& dimensions, const std::string& title);
+
+    Dimensions framebufferSize() const;
+    void setVsync(bool enabled);
 
     void pollEvents();
     void swapBuffers();
@@ -25,8 +27,10 @@ public:
     bool shouldClose() const;
 
 private:
+    bool tryCreate(const Dimensions& dimensions, const std::string& title);
+    void destroy();
+
     GLFWwindow* mWindowPtr{nullptr};
-    static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 };
 
-}  // end namespace vertex
+}

@@ -1,14 +1,31 @@
 #pragma once
 
-namespace Vertex {
+#include <glm/vec4.hpp>
+
+#include <memory>
+
+namespace vertex {
+
+class Shader;
+
 class Renderer {
 public:
     Renderer();
-    void Draw();
+    ~Renderer();
+
+    Renderer(const Renderer&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
+
+    bool init();
+
+    void clear(const glm::vec4& color);
+    void drawQuad();
 
 private:
-    unsigned int VAO_{0};
-    unsigned int VBO_{0};
-    unsigned int EBO_{0};
+    std::unique_ptr<Shader> mShader;
+    unsigned int mVao{0};
+    unsigned int mVbo{0};
+    unsigned int mEbo{0};
 };
+
 }

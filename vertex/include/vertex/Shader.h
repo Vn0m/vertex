@@ -3,21 +3,25 @@
 #include <string>
 #include <vector>
 
-namespace Vertex {
+namespace vertex {
 
 class Shader {
 public:
-    Shader();
-    Shader(const std::string& vertFileName, const std::string& fragFileName);
-    void loadShader(const std::string& vertFileName, const std::string& fragFileName);
-    void supplyIntUniform(const std::string& uniformName, const std::vector<int>& vals);
-    void Bind();
+    Shader() = default;
+    Shader(const std::string& vertPath, const std::string& fragPath);
     ~Shader();
 
-private:
-    unsigned int mShader{0};
+    Shader(const Shader&) = delete;
+    Shader& operator=(const Shader&) = delete;
 
-    std::string ReadFile(const std::string& filename);
+    bool loadShader(const std::string& vertPath, const std::string& fragPath);
+    bool valid() const;
+
+    void supplyIntUniform(const std::string& uniformName, const std::vector<int>& vals);
+    void bind() const;
+
+private:
+    unsigned int mProgram{0};
 };
 
 }

@@ -1,71 +1,85 @@
-#include "../include/vertex/Window.h"
+#include "vertex/Window.h"
 
-#include <iostream>
-namespace Vertex {
+#include <glad/gl.h>
+#include <GLFW/glfw3.h>
 
-//
-// Private Section
-//
+#include <cstdio>
 
-// handles window resizing. it runs everytime window is resized
-void Window::framebufferSizeCallback(GLFWwindow* window, int width, int height) {
-    // to prevent unused param warning
+namespace {
+
+void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     (void)window;
-    // updates opengl viewport to map to new window dimensions
     glViewport(0, 0, width, height);
 }
 
-//
-//  Public Section
-//
+}
+
+namespace vertex {
 
 Window::~Window() {
+    destroy();
+}
+
+void Window::destroy() {
     if (mWindowPtr != nullptr) {
         glfwDestroyWindow(mWindowPtr);
+        mWindowPtr = nullptr;
     }
     glfwTerminate();
 }
 
-void Window::Create(const Dimensions& dimensions, const std::string& title) {
-    glfwInit();
+bool Window::create(const Dimensions& dimensions, const std::string& title) {
+    if (tryCreate(dimensions, title)) {
+        return true;
+    }
+    destroy();
+    return false;
+}
+
+bool Window::tryCreate(const Dimensions& dimensions, const std::string& title) {
+    if (!glfwInit()) {
+        std::fprintf(stderr, "window: glfwInit failed\n");
+        return false;
+    }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    // hint for use on wayland display servers
-    glfwWindowHintString(GLFW_WAYLAND_APP_ID, "CustomAppClass");
+    // macOS refuses a 3.2+ core context without this
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    glfwWindowHintString(GLFW_WAYLAND_APP_ID, "glade");
 
     mWindowPtr = glfwCreateWindow(dimensions.width, dimensions.height, title.c_str(),
                                   nullptr, nullptr);
 
     if (mWindowPtr == nullptr) {
-        std::cout << "Failed to create GLFW window. \n";
-        glfwTerminate();
-        return;
+        std::fprintf(stderr, "window: failed to create GLFW window\n");
+        return false;
     }
 
-    // make context(drawing context) means "if you draw something, draw it here at this
-    // window" the window controlled by this pointer
     glfwMakeContextCurrent(mWindowPtr);
-
     glfwSetFramebufferSizeCallback(mWindowPtr, framebufferSizeCallback);
 
     if (!gladLoadGL(glfwGetProcAddress)) {
-        std::cout << "Couldn't open OpenGL.\n";
-        glfwTerminate();
-        return;
+        std::fprintf(stderr, "window: failed to load OpenGL functions\n");
+        return false;
     }
 
-    glViewport(0, 0, dimensions.width, dimensions.height);
+    const Dimensions framebuffer = framebufferSize();
+    glViewport(0, 0, framebuffer.width, framebuffer.height);
+    return true;
 }
 
-Dimensions Window::getSize() const {
+Dimensions Window::framebufferSize() const {
     int width{0}, height{0};
-    glfwGetWindowSize(mWindowPtr, &width, &height);
+    glfwGetFramebufferSize(mWindowPtr, &width, &height);
     return {width, height};
+}
+
+void Window::setVsync(bool enabled) {
+    glfwSwapInterval(enabled ? 1 : 0);
 }
 
 void Window::pollEvents() {
@@ -80,4 +94,4 @@ bool Window::shouldClose() const {
     return glfwWindowShouldClose(mWindowPtr);
 }
 
-}  // end namespace Vertex
+}
