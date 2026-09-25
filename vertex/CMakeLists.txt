@@ -3,6 +3,7 @@ add_library(vertex STATIC
     src/Window.cpp
     src/Renderer.cpp
     src/Shader.cpp
+    src/Physics.cpp
 )
 
 target_include_directories(vertex PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
