@@ -17,7 +17,7 @@ int main() {
         window.pollEvents();
 
         renderer.clear({0.10f, 0.11f, 0.15f, 1.0f});
-
+        
         window.swapBuffers();
     }
 
