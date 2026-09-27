@@ -22,16 +22,17 @@ else()
     target_compile_options(vertex PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-add_executable(vertex_tests
-    tests/SparseSetTest.cpp
-)
+foreach(_test SparseSet Registry)
+    set(_target vertex_${_test}Test)
 
-target_link_libraries(vertex_tests PRIVATE vertex)
+    add_executable(${_target} tests/${_test}Test.cpp)
+    target_link_libraries(${_target} PRIVATE vertex)
 
-if(MSVC)
-    target_compile_options(vertex_tests PRIVATE /W4)
-else()
-    target_compile_options(vertex_tests PRIVATE -Wall -Wextra -Wpedantic)
-endif()
+    if(MSVC)
+        target_compile_options(${_target} PRIVATE /W4)
+    else()
+        target_compile_options(${_target} PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
 
-add_test(NAME vertex_tests COMMAND vertex_tests)
+    add_test(NAME ${_target} COMMAND ${_target})
+endforeach()
