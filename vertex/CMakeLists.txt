@@ -21,3 +21,17 @@ if(MSVC)
 else()
     target_compile_options(vertex PRIVATE -Wall -Wextra -Wpedantic)
 endif()
+
+add_executable(vertex_tests
+    tests/SparseSetTest.cpp
+)
+
+target_link_libraries(vertex_tests PRIVATE vertex)
+
+if(MSVC)
+    target_compile_options(vertex_tests PRIVATE /W4)
+else()
+    target_compile_options(vertex_tests PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+add_test(NAME vertex_tests COMMAND vertex_tests)

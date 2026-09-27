@@ -20,6 +20,7 @@ private:
     std::vector<std::uint32_t> mSparse;
     std::vector<std::uint32_t> mOwners;
     std::vector<T> mDense;
+
 public:
     bool has(std::uint32_t id) const override {
         if (id >= mSparse.size() || mSparse[id] == kNone) {
