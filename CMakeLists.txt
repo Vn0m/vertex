@@ -17,6 +17,8 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(vendor/glfw)
 add_subdirectory(vendor/glad)
 add_subdirectory(vendor/glm)
+add_subdirectory(vendor/stb)
+
 enable_testing()
 
 add_subdirectory(vertex)

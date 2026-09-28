@@ -3,13 +3,14 @@ add_library(vertex STATIC
     src/Window.cpp
     src/Renderer.cpp
     src/Shader.cpp
+    src/Texture.cpp
 )
 
 target_include_directories(vertex PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 target_link_libraries(vertex
     PUBLIC  glm
-    PRIVATE glad glfw
+    PRIVATE glad glfw stb
 )
 
 target_compile_definitions(vertex PRIVATE
