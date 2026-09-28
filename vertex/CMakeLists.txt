@@ -21,3 +21,18 @@ if(MSVC)
 else()
     target_compile_options(vertex PRIVATE -Wall -Wextra -Wpedantic)
 endif()
+
+foreach(_test SparseSet Registry)
+    set(_target vertex_${_test}Test)
+
+    add_executable(${_target} tests/${_test}Test.cpp)
+    target_link_libraries(${_target} PRIVATE vertex)
+
+    if(MSVC)
+        target_compile_options(${_target} PRIVATE /W4)
+    else()
+        target_compile_options(${_target} PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+
+    add_test(NAME ${_target} COMMAND ${_target})
+endforeach()
