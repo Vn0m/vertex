@@ -1,4 +1,3 @@
-#include "glade.h"
 #include <vertex/Renderer.h>
 #include <vertex/Window.h>
 
@@ -10,15 +9,18 @@ int main() {
     window.setVsync(true);
 
     vertex::Renderer renderer;
+
     if (!renderer.init()) {
         return 1;
     }
+    renderer.setViewport(window.framebufferSize().width, window.framebufferSize().height);
+    vertex::Texture tileset{std::string(GLADE_ASSET_DIR) + "/tileset/Dungeon_Tileset_at.png"};
 
     while (!window.shouldClose()) {
         window.pollEvents();
 
         renderer.clear({0.10f, 0.11f, 0.15f, 1.0f});
-
+        renderer.drawSprite(tileset, {0, 0}, {800, 600}, {0, 0, 1, 1});
         window.swapBuffers();
     }
 

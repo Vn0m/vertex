@@ -26,7 +26,7 @@ public:
 private:
     std::unique_ptr<Shader> mShader;
     // orthographic projection matrix mapping coordinates to normalized device coordinates
-    glm::mat4 mProjection;
+    glm::mat4 mProjection{1.0f};
     unsigned int mVao{0};
     unsigned int mVbo{0};
     unsigned int mEbo{0};

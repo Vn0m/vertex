@@ -2,7 +2,7 @@
 #include "vertex/Texture.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "../../vendor/stb/stb_image.h"
+#include <stb_image.h>
 #include <iostream>
 namespace vertex {
     Texture::Texture() {}
@@ -14,14 +14,14 @@ namespace vertex {
     void Texture::LoadImage(const std::string& fileName) {
                 glGenTextures(1, &mTexture);
         glBindTexture(GL_TEXTURE_2D, mTexture);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
         int width,height,nrChannels;
 
-        stbi_set_flip_vertically_on_load(true);
+        stbi_set_flip_vertically_on_load(false);
         // array of unsigned 1 byte ints
         unsigned char* image_data = stbi_load(fileName.c_str(), &width,&height, &nrChannels, 0);
         if (image_data) {

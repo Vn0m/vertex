@@ -1,5 +1,5 @@
 add_executable(glade
-    src/glade.cpp
+    src/main.cpp
 )
 
 target_link_libraries(glade PRIVATE vertex)
@@ -9,3 +9,8 @@ if(MSVC)
 else()
     target_compile_options(glade PRIVATE -Wall -Wextra -Wpedantic)
 endif()
+
+target_compile_definitions(glade PRIVATE
+    GLADE_ASSET_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets"
+)
+

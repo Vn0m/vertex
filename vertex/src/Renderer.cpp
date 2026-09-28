@@ -78,6 +78,15 @@ void Renderer::clear(const glm::vec4& color) {
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
+/**
+ * @brief draws a sprite 
+ * 
+ * @param tex the image to sample, instantiate a texture first 
+ * @param pos position of the sprite's top-left corner in pixels (feeds the glm::translate call)
+ * @param size of the sprite in pixels (feeds glm::scale call)
+ * @param uvRect a vec4 holding {x,y,width,height} to choose which part of the image you want,
+                    for example {0,0,1,1} for the whole picture, {0,0,0,5,1}
+ */
 void Renderer::drawSprite(Texture& tex, glm::vec2 pos,glm::vec2 size, glm::vec4 uvRect) {
     glm::mat4 model{1.0f};
     model = glm::translate(model, glm::vec3(pos,0.0f));

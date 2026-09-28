@@ -127,21 +127,28 @@ void Shader::supplyIntUniform(const std::string& uniformName,
     }
 }
 
-
 void Shader::setInt(const std::string& name, int value) {
-    glUniform1i(glGetUniformLocation(mProgram, name.c_str()), value);
-}    
-void Shader::setMat4(const std::string& name, const glm::mat4& value) {
-    const int loc = glad_glGetUniformLocation(mProgram,name.c_str());
+    const int loc = glGetUniformLocation(mProgram, name.c_str());
     if (loc == -1) {
         std::cerr << "shader: uniform " << name << " not found\n";
         return;
     }
-    glUniformMatrix4fv(glGetUniformLocation(mProgram, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
-    
+    glUniform1i(loc, value);
+}
+void Shader::setMat4(const std::string& name, const glm::mat4& value) {
+    const int loc = glGetUniformLocation(mProgram, name.c_str());
+    if (loc == -1) {
+        return;
+    }
+    glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
 }
 void Shader::setVec4(const std::string& name, const glm::vec4& value) {
-    glUniform4fv(glGetUniformLocation(mProgram, name.c_str()), 1, glm::value_ptr(value));
+    const int loc = glGetUniformLocation(mProgram, name.c_str());
+    if (loc == -1) {
+        std::cerr << "shader: uniform " << name << " not found\n";
+        return;
+    }
+    glUniform4fv(loc, 1, glm::value_ptr(value));
 }
 
 void Shader::bind() const {

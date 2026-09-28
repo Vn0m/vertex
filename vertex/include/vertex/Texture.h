@@ -16,8 +16,8 @@ public:
 
     Texture(const Texture&) = delete;
     Texture& operator=(const Texture&) = delete;
-    Texture(Texture&& other) noexcept;
-    Texture& operator=(Texture&&) noexcept;
+    // Texture(Texture&& other) noexcept;
+    // Texture& operator=(Texture&&) noexcept;
 
 private:
     unsigned int mTexture{0};
