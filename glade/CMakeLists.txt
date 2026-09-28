@@ -1,5 +1,5 @@
 add_executable(glade
-    src/main.cpp
+    src/glade.cpp
 )
 
 target_link_libraries(glade PRIVATE vertex)

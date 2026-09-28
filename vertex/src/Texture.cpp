@@ -25,7 +25,7 @@ namespace vertex {
         // array of unsigned 1 byte ints
         unsigned char* image_data = stbi_load(fileName.c_str(), &width,&height, &nrChannels, 0);
         if (image_data) {
-            // this will only take pngs !!!
+            // this will only take pngs, jpgs, bmp and gifs, any image format with 4 channels (RGBA)
             GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
             glTexImage2D(GL_TEXTURE_2D, 0, format,width,height,0,format,GL_UNSIGNED_BYTE,image_data);
             mDimensions = {width,height};
