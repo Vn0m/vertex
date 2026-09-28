@@ -66,7 +66,7 @@ bool Renderer::init() {
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(2*sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
@@ -79,35 +79,36 @@ void Renderer::clear(const glm::vec4& color) {
 }
 
 /**
- * @brief draws a sprite 
- * 
- * @param tex the image to sample, instantiate a texture first 
- * @param pos position of the sprite's top-left corner in pixels (feeds the glm::translate call)
+ * @brief draws a sprite
+ *
+ * @param tex the image to sample, instantiate a texture first
+ * @param pos position of the sprite's top-left corner in pixels (feeds the glm::translate
+ call)
  * @param size of the sprite in pixels (feeds glm::scale call)
- * @param uvRect a vec4 holding {x,y,width,height} to choose which part of the image you want,
-                    for example {0,0,1,1} for the whole picture, {0,0,0,5,1}
+ * @param uvRect a vec4 holding {x,y,width,height} to choose which part of the image you
+ want, for example {0,0,1,1} for the whole picture, {0,0,0,5,1}
  */
-void Renderer::drawSprite(Texture& tex, glm::vec2 pos,glm::vec2 size, glm::vec4 uvRect) {
+void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect) {
     glm::mat4 model{1.0f};
-    model = glm::translate(model, glm::vec3(pos,0.0f));
-    model = glm::scale(model, glm::vec3(size,1.0f));
+    model = glm::translate(model, glm::vec3(pos, 0.0f));
+    model = glm::scale(model, glm::vec3(size, 1.0f));
 
     mShader->bind();
     mShader->setInt("picture", 0);
-    mShader->setVec4("uvRect",uvRect);
-    mShader->setMat4("model",model);
+    mShader->setVec4("uvRect", uvRect);
+    mShader->setMat4("model", model);
     mShader->setMat4("projection", mProjection);
 
     glActiveTexture(GL_TEXTURE0);
     tex.Bind();
 
     glBindVertexArray(mVao);
-    glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,nullptr);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 }
 
 void Renderer::setViewport(int width, int height) {
-    mProjection = glm::ortho(0.0f, static_cast<float>(width),
-                             static_cast<float>(height), 0.0f, -1.0f, 1.0f);
+    mProjection = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height),
+                             0.0f, -1.0f, 1.0f);
 }
 }

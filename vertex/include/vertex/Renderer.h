@@ -20,9 +20,10 @@ public:
 
     void clear(const glm::vec4& color);
     // do not const tex because bind for texture is not const
-    void drawSprite(Texture& tex, glm::vec2 pos,glm::vec2 size, glm::vec4 uvRect);
+    void drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect);
 
     void setViewport(int width, int height);
+
 private:
     std::unique_ptr<Shader> mShader;
     // orthographic projection matrix mapping coordinates to normalized device coordinates
