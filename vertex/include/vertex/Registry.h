@@ -18,10 +18,12 @@ public:
         if (!mFreeIds.empty()) {
             const std::uint32_t index = mFreeIds.back();
             mFreeIds.pop_back();
+            mAlive[index] = 1;
             return {index, mGenerations[index]};
         }
 
         mGenerations.push_back(0);
+        mAlive.push_back(1);
         return {static_cast<std::uint32_t>(mGenerations.size() - 1), 0};
     }
 
@@ -34,12 +36,13 @@ public:
             entry.second->remove(entity.index);
         }
 
+        mAlive[entity.index] = 0;
         mGenerations[entity.index]++;
         mFreeIds.push_back(entity.index);
     }
 
     bool valid(Entity entity) const {
-        return entity.index < mGenerations.size() &&
+        return entity.index < mGenerations.size() && mAlive[entity.index] != 0 &&
                mGenerations[entity.index] == entity.generation;
     }
 
@@ -48,8 +51,11 @@ public:
     }
 
     template <typename T>
-    T& add(Entity entity, T component) {
-        return pool<T>().add(entity.index, std::move(component));
+    T* add(Entity entity, T component) {
+        if (!valid(entity)) {
+            return nullptr;
+        }
+        return &pool<T>().add(entity.index, std::move(component));
     }
 
     template <typename T>
@@ -138,6 +144,7 @@ private:
     }
 
     std::vector<std::uint32_t> mGenerations;
+    std::vector<std::uint8_t> mAlive;
     std::vector<std::uint32_t> mFreeIds;
     std::unordered_map<std::type_index, std::unique_ptr<ISparseSet>> mPools;
 };

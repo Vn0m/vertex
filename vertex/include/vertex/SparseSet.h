@@ -76,10 +76,6 @@ public:
         return mDense.size();
     }
 
-    std::vector<T>& components() {
-        return mDense;
-    }
-
     const std::vector<std::uint32_t>& owners() const {
         return mOwners;
     }

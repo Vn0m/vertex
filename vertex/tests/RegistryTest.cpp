@@ -107,6 +107,49 @@ void deadHandlesReadAsEmpty() {
     registry.remove<Position>(a);
 }
 
+void fabricatedHandleToAFreedSlotIsInvalid() {
+    vertex::Registry registry;
+
+    const vertex::Entity a = registry.create();
+    registry.destroy(a);
+
+    const vertex::Entity fabricated{a.index, a.generation + 1};
+    CHECK(!registry.valid(fabricated));
+
+    registry.destroy(fabricated);
+    CHECK(registry.aliveCount() == 0);
+
+    const vertex::Entity x = registry.create();
+    const vertex::Entity y = registry.create();
+    CHECK(x != y);
+    CHECK(registry.aliveCount() == 2);
+}
+
+void addRejectsStaleHandles() {
+    vertex::Registry registry;
+
+    const vertex::Entity stale = registry.create();
+    registry.destroy(stale);
+
+    const vertex::Entity live = registry.create();
+    CHECK(live.index == stale.index);
+
+    CHECK(registry.add(stale, Position{9, 9}) == nullptr);
+    CHECK(!registry.has<Position>(live));
+
+    CHECK(registry.add(live, Position{1, 2}) != nullptr);
+    CHECK(registry.get<Position>(live)->x == 1);
+}
+
+void addRejectsOutOfRangeHandles() {
+    vertex::Registry registry;
+    registry.create();
+
+    const vertex::Entity bogus{99999, 0};
+    CHECK(registry.add(bogus, Position{1, 1}) == nullptr);
+    CHECK(!registry.has<Position>(bogus));
+}
+
 void eachOneComponent() {
     vertex::Registry registry;
 
@@ -248,6 +291,9 @@ int main() {
     componentRoundTrip();
     destroyClearsEveryPool();
     deadHandlesReadAsEmpty();
+    fabricatedHandleToAFreedSlotIsInvalid();
+    addRejectsStaleHandles();
+    addRejectsOutOfRangeHandles();
     eachOneComponent();
     eachTwoComponentsMatchesIntersection();
     eachPicksTheSmallerPoolEitherWay();
