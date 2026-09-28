@@ -1,11 +1,23 @@
 #include "vertex/Physics.h"
 
+#include "glm/glm.hpp"
+
 namespace vertex{
 
 BodyPhysics::BodyPhysics(const glm::vec2& position, const glm::vec2& size) : m_position_(position), m_size_(size) {}
 
 // updated to account for window dimensions as rigid body (for now)
 void BodyPhysics::update(float delta_time, const Dimensions& windowSize){
+    // handle knockback
+    if(mIsKnockback){
+        mKnockbackTimer -= delta_time;
+        if(mKnockbackTimer <= 0.0f){
+            mIsKnockback = false;
+            m_velocity_ = mOriginalVelocity;
+        }
+    }
+    
+    // velocity application
     m_position_ += m_velocity_ * delta_time;
 
 
@@ -40,7 +52,7 @@ void BodyPhysics::update(float delta_time, const Dimensions& windowSize){
 }
 
 void BodyPhysics::setVelocity(const glm::vec2& velocity){
-    m_velocity_ = velocity;
+    if(!mIsKnockback) m_velocity_ = velocity;
 }
 
 bool BodyPhysics::checkCollision(const BodyPhysics& other_entity) const{
@@ -55,10 +67,29 @@ bool BodyPhysics::checkCollision(const BodyPhysics& other_entity) const{
 
 bool BodyPhysics::resolveCollision(BodyPhysics& other_entity){
     if(checkCollision(other_entity)){
-        // for now it just makes them change direction
-        this -> m_velocity_ = -(this -> m_velocity_);
-        other_entity.m_velocity_ = -other_entity.m_velocity_;
+
+        float knockbackSpeed = 150.0f;
+        float knowckbackDuration = 0.25f;
+
+        glm::vec2 centerA = m_position_ + (m_size_ * 0.5f);
+        glm::vec2 centerB = other_entity.m_position_ + (other_entity.m_size_ * 0.5f);
+
+        glm::vec2 pushDirA = glm::normalize(centerA - centerB);
+        glm::vec2 pushDirB = -pushDirA;
+
+        if(!(this -> mIsKnockback)){
+            this -> mOriginalVelocity = this -> m_velocity_;
+            this -> m_velocity_ = pushDirA * knockbackSpeed;
+            this -> mKnockbackTimer = knowckbackDuration;
+            this -> mIsKnockback = true;
+        }
         
+        if(other_entity.mIsKnockback){
+            other_entity.mOriginalVelocity = other_entity.m_velocity_;
+            other_entity.m_velocity_ = pushDirA * knockbackSpeed;
+            other_entity.mKnockbackTimer = knowckbackDuration;
+            other_entity.mIsKnockback = true;
+        }
         return true;
     }
 

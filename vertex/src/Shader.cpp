@@ -139,6 +139,14 @@ void Shader::supplyMat4Uniform(const std::string & uniformName, const glm::mat4&
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
+void Shader::supplyVec3Uniform(const std::string& uniformName, const glm::vec3& color) {
+    glUseProgram(mProgram);
+    int location = glGetUniformLocation(mProgram, uniformName.c_str());
+    if (location != -1) {
+        glUniform3fv(location, 1, glm::value_ptr(color));
+    }
+}
+
 void Shader::bind() const {
     glUseProgram(mProgram);
 }

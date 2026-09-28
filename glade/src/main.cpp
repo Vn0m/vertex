@@ -30,16 +30,20 @@ int main() {
     while (!window.shouldClose()) {
         window.pollEvents();
 
+        rectA.resolveCollision(rectB);
+        // check for collision and print in terminal if true;
+        if(rectA.resolveCollision(rectB)) std::cout << "Basic Collision detected" << std::endl;
+
         // update position;
         rectA.update(test_delta, currentSize);
         rectB.update(test_delta, currentSize);
 
-        // check for collision and print in terminal if true;
-        if(rectA.resolveCollision(rectB)) std::cout << "Basic Collision detected" << std::endl;
+        glm::vec3 colorA = rectA.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f) : glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec3 colorB = rectB.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f) : glm::vec3(1.0f, 1.0f, 1.0f);
 
         renderer.clear({0.10f, 0.11f, 0.15f, 1.0f});
-        renderer.drawQuad(rectA.getPosition(), rectA.getSize());
-        renderer.drawQuad(rectB.getPosition(), rectB.getSize());
+        renderer.drawQuad(rectA.getPosition(), rectA.getSize(), colorA);
+        renderer.drawQuad(rectB.getPosition(), rectB.getSize(), colorB);
 
         window.swapBuffers();
     }

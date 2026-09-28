@@ -81,7 +81,7 @@ void Renderer::drawQuad() {
     glBindVertexArray(0);
 }
 
-void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size) {
+void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec3& color) {
     mShader->bind();
 
     // projection matrix 800x600 window
@@ -95,6 +95,9 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size) {
     //send transformation to shader
     glm::mat4 mvp = projection * model;
     mShader->supplyMat4Uniform("uMVP", mvp);
+
+    // color fragment 
+    mShader -> supplyVec3Uniform("uColor", color);
 
     glBindVertexArray(mVao);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);

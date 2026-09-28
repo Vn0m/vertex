@@ -22,9 +22,15 @@ namespace vertex{
 
             glm::vec2 getPosition() const;
             glm::vec2 getSize() const;
+
+            bool isKnockedBack() const {return mIsKnockback;};
         private:
             glm::vec2 m_position_;
             glm::vec2 m_size_;
             glm::vec2 m_velocity_{0.0f, 0.0f};
+
+            glm::vec2 mOriginalVelocity{0.0f, 0.0f};
+            float mKnockbackTimer{0.0f};
+            bool mIsKnockback{false};
     };
 }

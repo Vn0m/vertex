@@ -23,6 +23,8 @@ public:
 
     void supplyMat4Uniform(const std::string & uniformName, const glm::mat4& matrix);
 
+    void supplyVec3Uniform(const std::string& uniformName, const glm::vec3& color);
+
 private:
     unsigned int mProgram{0};
 };
