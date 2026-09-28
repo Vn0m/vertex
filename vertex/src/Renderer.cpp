@@ -86,7 +86,7 @@ void Renderer::clear(const glm::vec4& color) {
  call)
  * @param size of the sprite in pixels (feeds glm::scale call)
  * @param uvRect a vec4 holding {x,y,width,height} to choose which part of the image you
- want, for example {0,0,1,1} for the whole picture, {0,0,0,5,1}
+ * want, for example {0,0,1,1} for the whole picture, or {0,0,0.5,1}.
  */
 void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect) {
     glm::mat4 model{1.0f};
