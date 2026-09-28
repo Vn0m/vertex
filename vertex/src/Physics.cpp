@@ -4,8 +4,39 @@ namespace vertex{
 
 BodyPhysics::BodyPhysics(const glm::vec2& position, const glm::vec2& size) : m_position_(position), m_size_(size) {}
 
-void BodyPhysics::update(float delta_time){
+// updated to account for window dimensions as rigid body (for now)
+void BodyPhysics::update(float delta_time, const Dimensions& windowSize){
     m_position_ += m_velocity_ * delta_time;
+
+
+    float halfWidth = m_size_.x / 2.0f;
+    float halfHeight = m_size_.y / 2.0f;
+
+    // window dimensison
+    float winWidth = static_cast<float>(windowSize.width);
+    float winHeight = static_cast<float>(windowSize.height);
+
+    // left wall
+    if(m_position_.x - halfWidth <= 0.0f){
+        m_position_.x = halfWidth;
+        m_velocity_.x *= -1.0f;
+    }
+    // right wall
+    else if(m_position_.x + halfWidth >= winWidth){
+        m_position_.x = winWidth - halfWidth;
+        m_velocity_.x *= -1.0f;
+    }
+
+    // top wall 
+    if(m_position_.y - halfHeight <= 0.0f){
+        m_position_.y = halfHeight;
+        m_velocity_.y *= -1.0f;
+    }
+    // bottom wall
+    else if(m_position_.y + halfHeight >= winHeight){
+        m_position_.y = winHeight - halfHeight;
+        m_velocity_.y *= -1.0f;
+    }
 }
 
 void BodyPhysics::setVelocity(const glm::vec2& velocity){

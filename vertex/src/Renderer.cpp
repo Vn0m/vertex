@@ -6,6 +6,8 @@
 
 #include "vertex/Shader.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace {
 
 // clang-format off
@@ -74,6 +76,26 @@ void Renderer::clear(const glm::vec4& color) {
 
 void Renderer::drawQuad() {
     mShader->bind();
+    glBindVertexArray(mVao);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
+}
+
+void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size) {
+    mShader->bind();
+
+    // projection matrix 800x600 window
+    glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
+
+    // model matrix
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(position, 0.0f));
+    model = glm::scale(model, glm::vec3(size, 1.0f));
+
+    //send transformation to shader
+    glm::mat4 mvp = projection * model;
+    mShader->supplyMat4Uniform("uMVP", mvp);
+
     glBindVertexArray(mVao);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);

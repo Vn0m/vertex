@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include <glm/vec4.hpp>
 
 #include <memory>
@@ -20,6 +22,7 @@ public:
 
     void clear(const glm::vec4& color);
     void drawQuad();
+    void drawQuad(const glm::vec2& position, const glm::vec2& size);
 
 private:
     std::unique_ptr<Shader> mShader;

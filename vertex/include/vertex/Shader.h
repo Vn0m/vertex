@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <glm/glm.hpp>
 
 namespace vertex {
 
@@ -19,6 +20,8 @@ public:
 
     void supplyIntUniform(const std::string& uniformName, const std::vector<int>& vals);
     void bind() const;
+
+    void supplyMat4Uniform(const std::string & uniformName, const glm::mat4& matrix);
 
 private:
     unsigned int mProgram{0};

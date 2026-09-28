@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/vec2.hpp>
+#include "types.h"
 
 namespace vertex{
     class BodyPhysics{
@@ -11,7 +12,8 @@ namespace vertex{
             BodyPhysics(const BodyPhysics&) = delete;
             BodyPhysics& operator=(const BodyPhysics&) = delete;
 
-            void update(float delta_time);
+            // update to include window dimensions
+            void update(float delta_time, const Dimensions& windowSize);
             void setVelocity(const glm::vec2& velocity);
 
             bool checkCollision(const BodyPhysics& other_entity) const;

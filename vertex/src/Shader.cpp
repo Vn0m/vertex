@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace {
 
@@ -124,6 +125,18 @@ void Shader::supplyIntUniform(const std::string& uniformName,
             std::cerr << "shader: uniform '" << uniformName << "' has " << vals.size()
                       << " values, expected 1 to 4\n";
     }
+}
+
+void Shader::supplyMat4Uniform(const std::string & uniformName, const glm::mat4& matrix){
+    glUseProgram(mProgram);
+    int location = glGetUniformLocation(mProgram, uniformName.c_str());
+    if(location == -1){
+        std::cerr << "Shader: uniform '" << uniformName << "' not found\n";
+        return;
+    }
+
+    // send matrix data to OpenGl
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
 void Shader::bind() const {
