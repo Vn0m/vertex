@@ -1,9 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-
-#include <glm/vec4.hpp>
-
+#include "Texture.h"
 #include <memory>
 
 namespace vertex {
@@ -21,12 +19,16 @@ public:
     bool init();
 
     void clear(const glm::vec4& color);
-    void drawQuad();
-    void drawQuad(const glm::vec2& position, const glm::vec2& size,
-                  const glm::vec3& color = glm::vec3(1.0f));
+    // do not const tex because bind for texture is not const
+    void drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
+                    glm::vec4 tint = glm::vec4(1.0f));
+
+    void setViewport(int width, int height);
 
 private:
     std::unique_ptr<Shader> mShader;
+    // orthographic projection matrix mapping coordinates to normalized device coordinates
+    glm::mat4 mProjection{1.0f};
     unsigned int mVao{0};
     unsigned int mVbo{0};
     unsigned int mEbo{0};

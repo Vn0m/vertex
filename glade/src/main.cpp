@@ -11,9 +11,12 @@ int main() {
     window.setVsync(true);
 
     vertex::Renderer renderer;
+
     if (!renderer.init()) {
         return 1;
     }
+    renderer.setViewport(window.framebufferSize().width, window.framebufferSize().height);
+    vertex::Texture whiteSquare{std::string(GLADE_ASSET_DIR) + "/textures/white.png"};
 
     // create dummy rectangles
     vertex::BodyPhysics rectA({250.0f, 300.0f}, {50.0f, 50.0f});
@@ -45,8 +48,10 @@ int main() {
                                                  : glm::vec3(1.0f, 1.0f, 1.0f);
 
         renderer.clear({0.10f, 0.11f, 0.15f, 1.0f});
-        renderer.drawQuad(rectA.getPosition(), rectA.getSize(), colorA);
-        renderer.drawQuad(rectB.getPosition(), rectB.getSize(), colorB);
+        renderer.drawSprite(whiteSquare, rectA.getPosition(), rectA.getSize(),
+                            {0, 0, 1, 1}, glm::vec4(colorA, 1.0f));
+        renderer.drawSprite(whiteSquare, rectB.getPosition(), rectB.getSize(),
+                            {0, 0, 1, 1}, glm::vec4(colorB, 1.0f));
 
         window.swapBuffers();
     }

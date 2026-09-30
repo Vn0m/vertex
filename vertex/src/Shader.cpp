@@ -1,11 +1,11 @@
 #include "vertex/Shader.h"
 
 #include <glad/gl.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <glm/gtc/type_ptr.hpp>
 
 namespace {
 
@@ -127,24 +127,28 @@ void Shader::supplyIntUniform(const std::string& uniformName,
     }
 }
 
-void Shader::supplyMat4Uniform(const std::string& uniformName, const glm::mat4& matrix) {
-    glUseProgram(mProgram);
-    int location = glGetUniformLocation(mProgram, uniformName.c_str());
-    if (location == -1) {
-        std::cerr << "Shader: uniform '" << uniformName << "' not found\n";
+void Shader::setInt(const std::string& name, int value) {
+    const int loc = glGetUniformLocation(mProgram, name.c_str());
+    if (loc == -1) {
+        std::cerr << "shader: uniform " << name << " not found\n";
         return;
     }
-
-    // send matrix data to OpenGl
-    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+    glUniform1i(loc, value);
 }
-
-void Shader::supplyVec3Uniform(const std::string& uniformName, const glm::vec3& color) {
-    glUseProgram(mProgram);
-    int location = glGetUniformLocation(mProgram, uniformName.c_str());
-    if (location != -1) {
-        glUniform3fv(location, 1, glm::value_ptr(color));
+void Shader::setMat4(const std::string& name, const glm::mat4& value) {
+    const int loc = glGetUniformLocation(mProgram, name.c_str());
+    if (loc == -1) {
+        return;
     }
+    glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
+}
+void Shader::setVec4(const std::string& name, const glm::vec4& value) {
+    const int loc = glGetUniformLocation(mProgram, name.c_str());
+    if (loc == -1) {
+        std::cerr << "shader: uniform " << name << " not found\n";
+        return;
+    }
+    glUniform4fv(loc, 1, glm::value_ptr(value));
 }
 
 void Shader::bind() const {

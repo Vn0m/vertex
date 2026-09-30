@@ -1,21 +1,21 @@
 #include "vertex/Renderer.h"
 
 #include <glad/gl.h>
-
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <string>
 
 #include "vertex/Shader.h"
-
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace {
 
 // clang-format off
 constexpr float kQuadVertices[] = {
-    -0.5f, -0.5f,
-     0.5f, -0.5f,
-     0.5f,  0.5f,
-    -0.5f,  0.5f,
+    // pos      // uv
+    0.0f, 0.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 1.0f, 0.0f,
+    1.0f, 1.0f, 1.0f, 1.0f,
+    0.0f, 1.0f, 0.0f, 1.0f
 };
 
 constexpr unsigned int kQuadIndices[] = {
@@ -62,8 +62,12 @@ bool Renderer::init() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(kQuadIndices), kQuadIndices,
                  GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
+    const int stride = 4 * sizeof(float);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
     return true;
@@ -74,35 +78,40 @@ void Renderer::clear(const glm::vec4& color) {
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Renderer::drawQuad() {
-    mShader->bind();
-    glBindVertexArray(mVao);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-    glBindVertexArray(0);
-}
-
-void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size,
-                        const glm::vec3& color) {
-    mShader->bind();
-
-    // projection matrix 800x600 window
-    glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
-
-    // model matrix
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(position, 0.0f));
+/**
+ * @brief draws a sprite
+ *
+ * @param tex the image to sample, instantiate a texture first
+ * @param pos position of the sprite's top-left corner in pixels (feeds the glm::translate
+ call)
+ * @param size of the sprite in pixels (feeds glm::scale call)
+ * @param uvRect a vec4 holding {x,y,width,height} to choose which part of the image you
+ * want, for example {0,0,1,1} for the whole picture, or {0,0,0.5,1}.
+ * @param tint color multiplied into the sampled texture, defaults to white (no change)
+ */
+void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
+                          glm::vec4 tint) {
+    glm::mat4 model{1.0f};
+    model = glm::translate(model, glm::vec3(pos, 0.0f));
     model = glm::scale(model, glm::vec3(size, 1.0f));
 
-    // send transformation to shader
-    glm::mat4 mvp = projection * model;
-    mShader->supplyMat4Uniform("uMVP", mvp);
+    mShader->bind();
+    mShader->setInt("picture", 0);
+    mShader->setVec4("uvRect", uvRect);
+    mShader->setVec4("uColorTint", tint);
+    mShader->setMat4("model", model);
+    mShader->setMat4("projection", mProjection);
 
-    // color fragment
-    mShader->supplyVec3Uniform("uColor", color);
+    glActiveTexture(GL_TEXTURE0);
+    tex.Bind();
 
     glBindVertexArray(mVao);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 }
 
+void Renderer::setViewport(int width, int height) {
+    mProjection = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height),
+                             0.0f, -1.0f, 1.0f);
+}
 }
