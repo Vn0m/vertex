@@ -22,7 +22,8 @@ public:
 
     void clear(const glm::vec4& color);
     void drawQuad();
-    void drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec3& color = glm::vec3(1.0f));
+    void drawQuad(const glm::vec2& position, const glm::vec2& size,
+                  const glm::vec3& color = glm::vec3(1.0f));
 
 private:
     std::unique_ptr<Shader> mShader;

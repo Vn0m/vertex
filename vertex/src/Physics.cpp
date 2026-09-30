@@ -2,93 +2,92 @@
 
 #include "glm/glm.hpp"
 
-namespace vertex{
+namespace vertex {
 
-BodyPhysics::BodyPhysics(const glm::vec2& position, const glm::vec2& size) : m_position_(position), m_size_(size) {}
+BodyPhysics::BodyPhysics(const glm::vec2& position, const glm::vec2& size)
+    : mPosition(position), mSize(size) {}
 
 // updated to account for window dimensions as rigid body (for now)
-void BodyPhysics::update(float delta_time, const Dimensions& windowSize){
+void BodyPhysics::update(float deltaTime, const Dimensions& windowSize) {
     // handle knockback
-    if(mIsKnockback){
-        mKnockbackTimer -= delta_time;
-        if(mKnockbackTimer <= 0.0f){
+    if (mIsKnockback) {
+        mKnockbackTimer -= deltaTime;
+        if (mKnockbackTimer <= 0.0f) {
             mIsKnockback = false;
-            m_velocity_ = mOriginalVelocity;
+            mVelocity = mOriginalVelocity;
         }
     }
-    
+
     // velocity application
-    m_position_ += m_velocity_ * delta_time;
+    mPosition += mVelocity * deltaTime;
 
+    float halfWidth = mSize.x / 2.0f;
+    float halfHeight = mSize.y / 2.0f;
 
-    float halfWidth = m_size_.x / 2.0f;
-    float halfHeight = m_size_.y / 2.0f;
-
-    // window dimensison
+    // window dimensions
     float winWidth = static_cast<float>(windowSize.width);
     float winHeight = static_cast<float>(windowSize.height);
 
     // left wall
-    if(m_position_.x - halfWidth <= 0.0f){
-        m_position_.x = halfWidth;
-        m_velocity_.x *= -1.0f;
+    if (mPosition.x - halfWidth <= 0.0f) {
+        mPosition.x = halfWidth;
+        mVelocity.x *= -1.0f;
     }
     // right wall
-    else if(m_position_.x + halfWidth >= winWidth){
-        m_position_.x = winWidth - halfWidth;
-        m_velocity_.x *= -1.0f;
+    else if (mPosition.x + halfWidth >= winWidth) {
+        mPosition.x = winWidth - halfWidth;
+        mVelocity.x *= -1.0f;
     }
 
-    // top wall 
-    if(m_position_.y - halfHeight <= 0.0f){
-        m_position_.y = halfHeight;
-        m_velocity_.y *= -1.0f;
+    // top wall
+    if (mPosition.y - halfHeight <= 0.0f) {
+        mPosition.y = halfHeight;
+        mVelocity.y *= -1.0f;
     }
     // bottom wall
-    else if(m_position_.y + halfHeight >= winHeight){
-        m_position_.y = winHeight - halfHeight;
-        m_velocity_.y *= -1.0f;
+    else if (mPosition.y + halfHeight >= winHeight) {
+        mPosition.y = winHeight - halfHeight;
+        mVelocity.y *= -1.0f;
     }
 }
 
-void BodyPhysics::setVelocity(const glm::vec2& velocity){
-    if(!mIsKnockback) m_velocity_ = velocity;
+void BodyPhysics::setVelocity(const glm::vec2& velocity) {
+    if (!mIsKnockback) mVelocity = velocity;
 }
 
-bool BodyPhysics::checkCollision(const BodyPhysics& other_entity) const{
-    bool collision_x = this -> m_position_.x + m_size_.x > other_entity.m_position_.x && 
-                        other_entity.m_position_.x + other_entity.m_size_.x > this -> m_position_.x;
+bool BodyPhysics::checkCollision(const BodyPhysics& other) const {
+    bool collisionX = mPosition.x + mSize.x > other.mPosition.x &&
+                      other.mPosition.x + other.mSize.x > mPosition.x;
 
-    bool collision_y = this -> m_position_.y + m_size_.y > other_entity.m_position_.y && 
-                        other_entity.m_position_.y + other_entity.m_size_.y > this -> m_position_.y;
+    bool collisionY = mPosition.y + mSize.y > other.mPosition.y &&
+                      other.mPosition.y + other.mSize.y > mPosition.y;
 
-    return collision_x && collision_y;
+    return collisionX && collisionY;
 }
 
-bool BodyPhysics::resolveCollision(BodyPhysics& other_entity){
-    if(checkCollision(other_entity)){
-
+bool BodyPhysics::resolveCollision(BodyPhysics& other) {
+    if (checkCollision(other)) {
         float knockbackSpeed = 150.0f;
-        float knowckbackDuration = 0.25f;
+        float knockbackDuration = 0.25f;
 
-        glm::vec2 centerA = m_position_ + (m_size_ * 0.5f);
-        glm::vec2 centerB = other_entity.m_position_ + (other_entity.m_size_ * 0.5f);
+        glm::vec2 centerA = mPosition + (mSize * 0.5f);
+        glm::vec2 centerB = other.mPosition + (other.mSize * 0.5f);
 
         glm::vec2 pushDirA = glm::normalize(centerA - centerB);
         glm::vec2 pushDirB = -pushDirA;
 
-        if(!(this -> mIsKnockback)){
-            this -> mOriginalVelocity = this -> m_velocity_;
-            this -> m_velocity_ = pushDirA * knockbackSpeed;
-            this -> mKnockbackTimer = knowckbackDuration;
-            this -> mIsKnockback = true;
+        if (!mIsKnockback) {
+            mOriginalVelocity = mVelocity;
+            mVelocity = pushDirA * knockbackSpeed;
+            mKnockbackTimer = knockbackDuration;
+            mIsKnockback = true;
         }
-        
-        if(other_entity.mIsKnockback){
-            other_entity.mOriginalVelocity = other_entity.m_velocity_;
-            other_entity.m_velocity_ = pushDirA * knockbackSpeed;
-            other_entity.mKnockbackTimer = knowckbackDuration;
-            other_entity.mIsKnockback = true;
+
+        if (other.mIsKnockback) {
+            other.mOriginalVelocity = other.mVelocity;
+            other.mVelocity = pushDirA * knockbackSpeed;
+            other.mKnockbackTimer = knockbackDuration;
+            other.mIsKnockback = true;
         }
         return true;
     }
@@ -96,6 +95,11 @@ bool BodyPhysics::resolveCollision(BodyPhysics& other_entity){
     return false;
 }
 
-glm::vec2 BodyPhysics::getPosition() const { return m_position_; }
-glm::vec2 BodyPhysics::getSize() const { return m_size_; }
+glm::vec2 BodyPhysics::getPosition() const {
+    return mPosition;
+}
+glm::vec2 BodyPhysics::getSize() const {
+    return mSize;
+}
+
 }

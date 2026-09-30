@@ -3,34 +3,39 @@
 #include <glm/vec2.hpp>
 #include "types.h"
 
-namespace vertex{
-    class BodyPhysics{
-        public:
-            BodyPhysics(const glm::vec2& position, const glm::vec2& size);
-            ~BodyPhysics() = default;
+namespace vertex {
 
-            BodyPhysics(const BodyPhysics&) = delete;
-            BodyPhysics& operator=(const BodyPhysics&) = delete;
+class BodyPhysics {
+public:
+    BodyPhysics(const glm::vec2& position, const glm::vec2& size);
+    ~BodyPhysics() = default;
 
-            // update to include window dimensions
-            void update(float delta_time, const Dimensions& windowSize);
-            void setVelocity(const glm::vec2& velocity);
+    BodyPhysics(const BodyPhysics&) = delete;
+    BodyPhysics& operator=(const BodyPhysics&) = delete;
 
-            bool checkCollision(const BodyPhysics& other_entity) const;
-            // bounce-back "animation"
-            bool resolveCollision(BodyPhysics& other);
+    // update to include window dimensions
+    void update(float deltaTime, const Dimensions& windowSize);
+    void setVelocity(const glm::vec2& velocity);
 
-            glm::vec2 getPosition() const;
-            glm::vec2 getSize() const;
+    bool checkCollision(const BodyPhysics& other) const;
+    // bounce-back "animation"
+    bool resolveCollision(BodyPhysics& other);
 
-            bool isKnockedBack() const {return mIsKnockback;};
-        private:
-            glm::vec2 m_position_;
-            glm::vec2 m_size_;
-            glm::vec2 m_velocity_{0.0f, 0.0f};
+    glm::vec2 getPosition() const;
+    glm::vec2 getSize() const;
 
-            glm::vec2 mOriginalVelocity{0.0f, 0.0f};
-            float mKnockbackTimer{0.0f};
-            bool mIsKnockback{false};
-    };
+    bool isKnockedBack() const {
+        return mIsKnockback;
+    }
+
+private:
+    glm::vec2 mPosition;
+    glm::vec2 mSize;
+    glm::vec2 mVelocity{0.0f, 0.0f};
+
+    glm::vec2 mOriginalVelocity{0.0f, 0.0f};
+    float mKnockbackTimer{0.0f};
+    bool mIsKnockback{false};
+};
+
 }

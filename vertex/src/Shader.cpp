@@ -127,10 +127,10 @@ void Shader::supplyIntUniform(const std::string& uniformName,
     }
 }
 
-void Shader::supplyMat4Uniform(const std::string & uniformName, const glm::mat4& matrix){
+void Shader::supplyMat4Uniform(const std::string& uniformName, const glm::mat4& matrix) {
     glUseProgram(mProgram);
     int location = glGetUniformLocation(mProgram, uniformName.c_str());
-    if(location == -1){
+    if (location == -1) {
         std::cerr << "Shader: uniform '" << uniformName << "' not found\n";
         return;
     }

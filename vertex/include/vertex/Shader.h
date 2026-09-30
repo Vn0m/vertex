@@ -21,7 +21,7 @@ public:
     void supplyIntUniform(const std::string& uniformName, const std::vector<int>& vals);
     void bind() const;
 
-    void supplyMat4Uniform(const std::string & uniformName, const glm::mat4& matrix);
+    void supplyMat4Uniform(const std::string& uniformName, const glm::mat4& matrix);
 
     void supplyVec3Uniform(const std::string& uniformName, const glm::vec3& color);
 

@@ -22,7 +22,7 @@ int main() {
     rectA.setVelocity({80.0f, 0.0f});
     rectB.setVelocity({-30.0f, 0.0f});
 
-    float test_delta = 0.016f; 
+    float test_delta = 0.016f;
 
     // size of the window
     vertex::Dimensions currentSize = window.framebufferSize();
@@ -32,14 +32,17 @@ int main() {
 
         rectA.resolveCollision(rectB);
         // check for collision and print in terminal if true;
-        if(rectA.resolveCollision(rectB)) std::cout << "Basic Collision detected" << std::endl;
+        if (rectA.resolveCollision(rectB))
+            std::cout << "Basic Collision detected" << std::endl;
 
         // update position;
         rectA.update(test_delta, currentSize);
         rectB.update(test_delta, currentSize);
 
-        glm::vec3 colorA = rectA.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f) : glm::vec3(1.0f, 1.0f, 1.0f);
-        glm::vec3 colorB = rectB.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f) : glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec3 colorA = rectA.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f)
+                                                 : glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec3 colorB = rectB.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f)
+                                                 : glm::vec3(1.0f, 1.0f, 1.0f);
 
         renderer.clear({0.10f, 0.11f, 0.15f, 1.0f});
         renderer.drawQuad(rectA.getPosition(), rectA.getSize(), colorA);
