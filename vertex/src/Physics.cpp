@@ -21,32 +21,29 @@ void BodyPhysics::update(float deltaTime, const Dimensions& windowSize) {
     // velocity application
     mPosition += mVelocity * deltaTime;
 
-    float halfWidth = mSize.x / 2.0f;
-    float halfHeight = mSize.y / 2.0f;
-
     // window dimensions
     float winWidth = static_cast<float>(windowSize.width);
     float winHeight = static_cast<float>(windowSize.height);
 
     // left wall
-    if (mPosition.x - halfWidth <= 0.0f) {
-        mPosition.x = halfWidth;
+    if (mPosition.x <= 0.0f) {
+        mPosition.x = 0.0f;
         mVelocity.x *= -1.0f;
     }
     // right wall
-    else if (mPosition.x + halfWidth >= winWidth) {
-        mPosition.x = winWidth - halfWidth;
+    else if (mPosition.x + mSize.x >= winWidth) {
+        mPosition.x = winWidth - mSize.x;
         mVelocity.x *= -1.0f;
     }
 
     // top wall
-    if (mPosition.y - halfHeight <= 0.0f) {
-        mPosition.y = halfHeight;
+    if (mPosition.y <= 0.0f) {
+        mPosition.y = 0.0f;
         mVelocity.y *= -1.0f;
     }
     // bottom wall
-    else if (mPosition.y + halfHeight >= winHeight) {
-        mPosition.y = winHeight - halfHeight;
+    else if (mPosition.y + mSize.y >= winHeight) {
+        mPosition.y = winHeight - mSize.y;
         mVelocity.y *= -1.0f;
     }
 }
@@ -83,9 +80,9 @@ bool BodyPhysics::resolveCollision(BodyPhysics& other) {
             mIsKnockback = true;
         }
 
-        if (other.mIsKnockback) {
+        if (!other.mIsKnockback) {
             other.mOriginalVelocity = other.mVelocity;
-            other.mVelocity = pushDirA * knockbackSpeed;
+            other.mVelocity = pushDirB * knockbackSpeed;
             other.mKnockbackTimer = knockbackDuration;
             other.mIsKnockback = true;
         }
