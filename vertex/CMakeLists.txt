@@ -3,6 +3,7 @@ add_library(vertex STATIC
     src/Window.cpp
     src/Renderer.cpp
     src/Shader.cpp
+    src/Physics.cpp
     src/Texture.cpp
 )
 

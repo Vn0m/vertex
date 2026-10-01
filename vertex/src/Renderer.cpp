@@ -87,8 +87,10 @@ void Renderer::clear(const glm::vec4& color) {
  * @param size of the sprite in pixels (feeds glm::scale call)
  * @param uvRect a vec4 holding {x,y,width,height} to choose which part of the image you
  * want, for example {0,0,1,1} for the whole picture, or {0,0,0.5,1}.
+ * @param tint color multiplied into the sampled texture, defaults to white (no change)
  */
-void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect) {
+void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
+                          glm::vec4 tint) {
     glm::mat4 model{1.0f};
     model = glm::translate(model, glm::vec3(pos, 0.0f));
     model = glm::scale(model, glm::vec3(size, 1.0f));
@@ -96,6 +98,7 @@ void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4
     mShader->bind();
     mShader->setInt("picture", 0);
     mShader->setVec4("uvRect", uvRect);
+    mShader->setVec4("uColorTint", tint);
     mShader->setMat4("model", model);
     mShader->setMat4("projection", mProjection);
 

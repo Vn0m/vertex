@@ -20,7 +20,8 @@ public:
 
     void clear(const glm::vec4& color);
     // do not const tex because bind for texture is not const
-    void drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect);
+    void drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
+                    glm::vec4 tint = glm::vec4(1.0f));
 
     void setViewport(int width, int height);
 
