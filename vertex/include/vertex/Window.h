@@ -3,7 +3,7 @@
 #include <string>
 
 #include "vertex/types.h"
-
+#include "vertex/KeyCodes.h"
 struct GLFWwindow;
 
 namespace vertex {
@@ -24,13 +24,17 @@ public:
     void pollEvents();
     void swapBuffers();
 
+    bool isKeyDown(Key key);
     bool shouldClose() const;
+
+    double time() const;
 
 private:
     bool tryCreate(const Dimensions& dimensions, const std::string& title);
     void destroy();
 
     GLFWwindow* mWindowPtr{nullptr};
+    
 };
 
 }

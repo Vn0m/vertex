@@ -33,7 +33,6 @@ int main() {
     while (!window.shouldClose()) {
         window.pollEvents();
 
-        rectA.resolveCollision(rectB);
         // check for collision and print in terminal if true;
         if (rectA.resolveCollision(rectB))
             std::cout << "Basic Collision detected" << std::endl;
