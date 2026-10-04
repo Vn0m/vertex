@@ -60,8 +60,10 @@ int main(int argc, char** argv) {
 
     using Clock = std::chrono::steady_clock;
     int frame = 0;
+    std::vector<double> samples;
+    samples.reserve(kSampleFrames);
 
-    while (!window.shouldClose()) {
+    while (!window.shouldClose() && samples.size() < kSampleFrames) {
         const Clock::time_point start = Clock::now();
 
         window.pollEvents();
@@ -76,11 +78,19 @@ int main(int argc, char** argv) {
         const double ms =
             std::chrono::duration<double, std::milli>(Clock::now() - start).count();
 
-        if (++frame % 120 == 0) {
-            std::printf("%d sprites  %.3f ms\n", count, ms);
-            std::fflush(stdout);
+        if (++frame > kWarmupFrames) {
+            samples.push_back(ms);
         }
     }
 
+    if (samples.size() < kSampleFrames) {
+        std::fprintf(stderr, "bench: window closed after %zu samples\n", samples.size());
+        return 1;
+    }
+
+    std::sort(samples.begin(), samples.end());
+    std::printf("sprites=%d frames=%zu median=%.3fms p95=%.3fms max=%.3fms\n", count,
+                samples.size(), percentile(samples, 0.50), percentile(samples, 0.95),
+                samples.back());
     return 0;
 }
