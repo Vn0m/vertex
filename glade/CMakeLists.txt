@@ -1,5 +1,6 @@
 add_executable(glade
     src/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../vertex/tests/PhysicsStressTest.cpp
 )
 
 target_link_libraries(glade PRIVATE vertex)
