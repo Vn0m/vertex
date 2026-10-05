@@ -89,9 +89,17 @@ void Window::pollEvents() {
 void Window::swapBuffers() {
     glfwSwapBuffers(mWindowPtr);
 }
+// using polling for movement
+bool Window::isKeyDown(Key key) {
+    return glfwGetKey(mWindowPtr, static_cast<int>(key)) == GLFW_PRESS;
+}
 
 bool Window::shouldClose() const {
     return glfwWindowShouldClose(mWindowPtr);
+}
+
+double Window::time() const {
+    return glfwGetTime();
 }
 
 }

@@ -5,6 +5,7 @@ add_library(vertex STATIC
     src/Shader.cpp
     src/Physics.cpp
     src/Texture.cpp
+    src/Events.cpp
 )
 
 target_include_directories(vertex PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
