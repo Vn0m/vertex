@@ -66,7 +66,7 @@ int main() {
     // 10000 takes a while to render
     // 50000 screen freezes
     vertex::tests::StressTestConfig stressConfig;
-    stressConfig.entityCount = 10000;
+    stressConfig.entityCount = 1000;
     stressConfig.windowSize = {2000, 1080};
 
     vertex::Window window;
