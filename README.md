@@ -31,6 +31,26 @@ glade/    the game executable
 vendor/   third-party dependencies
 ```
 
+## Benchmarks
+
+Frame time to draw N sprites, before sprite batching (one draw call per sprite):
+
+| Sprites | Median | p95 |
+|--------:|-------:|----:|
+| 100 | 0.51 ms | 1.45 ms |
+| 1,000 | 1.68 ms | 3.52 ms |
+| 5,000 | 7.86 ms | 9.56 ms |
+| 10,000 | 16.62 ms | 17.32 ms |
+
+Apple M3, Release build, vsync off. 60 warmup frames discarded, then median and
+p95 of the next 500.
+
+```sh
+cmake -B build-release -DCMAKE_BUILD_TYPE=Release
+cmake --build build-release --parallel
+./bin/vertex_bench 10000
+```
+
 ## License
 
 See [LICENSE](LICENSE).
