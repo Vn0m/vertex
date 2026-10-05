@@ -7,18 +7,67 @@
 // two-rectangle demo below. See vertex/tests/PhysicsStressTest.h for the
 // test's own setup/step/draw instructions.
 #define RUN_PHYSICS_STRESS_TEST 1
-#if RUN_PHYSICS_STRESS_TEST
+// Set to 1 to run the tilemap traversal test (dungeon tileset background +
+// border-wall hitboxes). Takes priority over RUN_PHYSICS_STRESS_TEST if both
+// are set. See vertex/tests/PhysicsTilemapTest.h for instructions.
+#define RUN_PHYSICS_TILEMAP_TEST 0
+
+#if RUN_PHYSICS_TILEMAP_TEST
+#include "../../vertex/tests/PhysicsTilemapTest.h"
+#elif RUN_PHYSICS_STRESS_TEST
 #include "../../vertex/tests/PhysicsStressTest.h"
 #endif
 
 int main() {
-#if RUN_PHYSICS_STRESS_TEST
-    // Change entityCount here to try 10 / 50 / 500 / 1000, etc. The window
-    // is intentionally larger than the normal demo so that many bodies have
-    // room to spread out.
+#if RUN_PHYSICS_TILEMAP_TEST
+    // Change entityCount / gridCols / gridRows here. The window is sized to
+    // exactly fit the tile grid, so it's created from windowSizeForTilemapTest,
+    // not a size picked by hand.
+    vertex::tests::TilemapTestConfig tilemapConfig;
+    tilemapConfig.entityCount = 50;
+
+    vertex::Window window;
+    if (!window.create(vertex::tests::windowSizeForTilemapTest(tilemapConfig),
+                       "Glade - Physics Tilemap Test")) {
+        return 1;
+    }
+    window.setVsync(true);
+
+    vertex::Renderer renderer;
+    if (!renderer.init()) {
+        return 1;
+    }
+    renderer.setViewport(window.framebufferSize().width, window.framebufferSize().height);
+    vertex::Texture tileset{std::string(GLADE_ASSET_DIR) + "/tileset/Dungeon_Tileset_at.png"};
+    vertex::Texture whiteSquare{std::string(GLADE_ASSET_DIR) + "/textures/white.png"};
+
+    auto walls = vertex::tests::buildBorderWalls(tilemapConfig);
+    auto bodies = vertex::tests::createTilemapTestBodies(tilemapConfig);
+    float test_delta = 0.016f;
+
+    while (!window.shouldClose()) {
+        window.pollEvents();
+
+        vertex::tests::stepTilemapTest(bodies, walls, test_delta, window.framebufferSize());
+
+        renderer.clear({0.10f, 0.11f, 0.15f, 1.0f});
+        vertex::tests::drawTilemapTest(renderer, tileset, whiteSquare, window.framebufferSize(),
+                                       bodies);
+
+        window.swapBuffers();
+    }
+
+    return 0;
+#elif RUN_PHYSICS_STRESS_TEST
+    // Change entityCount here to try 10 / 50 / 500 / 1000. 
+
+    // 1000 runs fine
+    // 5000 starts lagging on render
+    // 10000 takes a while to render
+    // 50000 screen freezes
     vertex::tests::StressTestConfig stressConfig;
-    stressConfig.entityCount = 50;
-    stressConfig.windowSize = {1280, 960};
+    stressConfig.entityCount = 10000;
+    stressConfig.windowSize = {2000, 1080};
 
     vertex::Window window;
     if (!window.create(stressConfig.windowSize, "Glade - Physics Stress Test")) {

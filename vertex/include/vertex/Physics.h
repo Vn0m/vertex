@@ -16,6 +16,7 @@ public:
     // update to include window dimensions
     void update(float deltaTime, const Dimensions& windowSize);
     void setVelocity(const glm::vec2& velocity);
+    void setPosition(const glm::vec2& position);
 
     bool checkCollision(const BodyPhysics& other) const;
     // bounce-back "animation"
@@ -23,6 +24,7 @@ public:
 
     glm::vec2 getPosition() const;
     glm::vec2 getSize() const;
+    glm::vec2 getVelocity() const;
 
     bool isKnockedBack() const {
         return mIsKnockback;

@@ -52,6 +52,10 @@ void BodyPhysics::setVelocity(const glm::vec2& velocity) {
     if (!mIsKnockback) mVelocity = velocity;
 }
 
+void BodyPhysics::setPosition(const glm::vec2& position) {
+    mPosition = position;
+}
+
 bool BodyPhysics::checkCollision(const BodyPhysics& other) const {
     bool collisionX = mPosition.x + mSize.x > other.mPosition.x &&
                       other.mPosition.x + other.mSize.x > mPosition.x;
@@ -97,6 +101,10 @@ glm::vec2 BodyPhysics::getPosition() const {
 }
 glm::vec2 BodyPhysics::getSize() const {
     return mSize;
+}
+
+glm::vec2 BodyPhysics::getVelocity() const {
+    return mVelocity;
 }
 
 }
