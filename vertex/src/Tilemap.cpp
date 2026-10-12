@@ -80,7 +80,7 @@ bool parseCsv(const std::string& path, std::vector<int>& outCells, int outWidth,
 namespace vertex {
 
 Tilemap::Tilemap(int tileSize, Texture* texture)
-    : mTileSize(tileSize), mTilemap(texture) {}
+    : mTileSize(tileSize), mTileset(texture) {}
 
 // gets the total number of tiles in a row
 std::int32_t Tilemap::getWidth() const {
@@ -96,7 +96,7 @@ int Tilemap::getTileSize() const {
 }
 
 void Tilemap::setTilemap(Texture* texture) {
-    mTilemap = texture;
+    mTileset = texture;
     mTilesPerRow = texture->getDimensions().width / mTileSize;
     mTileCount = mTilesPerRow * texture->getDimensions().height / mTileSize;
 }
@@ -108,7 +108,7 @@ bool Tilemap::loadLayer(const std::string& path) {
     if (!parseCsv(path, cells, width, height)) {
         return false;
     }
-    if (!mCheckSize(width, height, path)) {
+    if (!CheckSize(width, height, path)) {
         return false;
     }
 
@@ -139,7 +139,7 @@ bool Tilemap::loadCollision(const std::string& path) {
     if (!parseCsv(path, cells, width, height)) {
         return false;
     }
-    if (!mCheckSize(width, height, path)) {
+    if (!CheckSize(width, height, path)) {
         return false;
     }
     for (size_t i = 0; i < cells.size(); i++) {
@@ -157,8 +157,7 @@ bool Tilemap::loadCollision(const std::string& path) {
         mHeight = height;
     }
     // convert int cells vector to 1B int
-    std::vector<uint8_t> cellsOneByte;
-    cellsOneByte.reserve(cells.size());
+    std::vector<uint8_t> cellsOneByte(cells.size());
     for (size_t i = 0; i < cells.size(); i++) {
         cellsOneByte[i] = (uint8_t)cells[i];
     }
@@ -168,7 +167,7 @@ bool Tilemap::loadCollision(const std::string& path) {
 ////////////////////
 // private functions
 ////////////////////
-bool Tilemap::mCheckSize(int width, int height, const std::string& path) const {
+bool Tilemap::CheckSize(int width, int height, const std::string& path) const {
     if (mWidth == 0) {
         return true;
     }
@@ -180,5 +179,15 @@ bool Tilemap::mCheckSize(int width, int height, const std::string& path) const {
               << mWidth << "x" << mHeight << "\n";
     return false;
 }
+
+glm::vec4 Tilemap::tileUV(int tile) const {
+    int row = tile / mTilesPerRow;
+    int column = mTilesPerRow % row;
+    const Dimensions tex = mTileset->getDimensions();
+    const float w = static_cast<float>(mTileSize) / static_cast<float>(tex.width);
+    const float h  = static_cast<float>(mTileSize) / static_cast<float>(tex.height);
+    return {w * column, row * h, w, h};
+}
+
 
 }

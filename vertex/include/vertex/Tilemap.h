@@ -50,16 +50,15 @@ private:
     // collision layer
     std::vector<uint8_t> mCollision;
     // pointer to the texture
-    Texture* mTilemap;
-
+    Texture* mTileset;
     int mTileCount{};
 
     // how many tiles fit across the tilemap image
     int mTilesPerRow{};
 
-    bool mCheckSize(int width, int height, const std::string& path) const;
+    bool CheckSize(int width, int height, const std::string& path) const;
     std::int32_t index(int x, int y);
     bool inBounds(int x, int y);
-    void tileUV(int tileIndex);
+    glm::vec4 tileUV(int tile) const;
 };
 }
