@@ -27,9 +27,9 @@ public:
     // stores the pointer to texture and computes m tiles per row from the texture's width
     void setTileset(Texture* texture);
     // parses one csv into a new visual layer and returns bool
-    bool loadLayer(std::string& path);
+    bool loadLayer(const std::string& path);
     // parses one csv into a collision grid
-    bool loadCollision(std::string& path);
+    bool loadCollision(const std::string& path);
 
     //
     void draw(Renderer& renderer, glm::vec2 position);
@@ -40,11 +40,11 @@ public:
 
 private:
     // map width in cells
-    std::int32_t mWidth{0};
+    std::int32_t mWidth{};
     // map height in cells
-    std::int32_t mHeight{0};
+    std::int32_t mHeight{};
     // size of the height and width of a tile in pixels
-    int mTileSize{0};
+    int mTileSize{};
     // vector holding a layer struct which contains its own layer
     std::vector<Layer> mLayers;
     // collision layer
@@ -52,10 +52,10 @@ private:
     // pointer to the texture
     Texture* mTileset;
 
-    int mTileCount{0};
+    int mTileCount{};
 
     // how many tiles fit across the tileset image
-    int mTilesPerRow{0};
+    int mTilesPerRow{};
 
     bool mCheckSize(int width, int height, const std::string& path) const;
     std::int32_t index(int x, int y);

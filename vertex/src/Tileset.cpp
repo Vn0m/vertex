@@ -82,15 +82,26 @@ namespace vertex {
 Tileset::Tileset(int tileSize, Texture* texture)
     : mTileSize(tileSize), mTileset(texture) {}
 
+// gets the total number of tiles in a row
+std::int32_t Tileset::getWidth() const {
+    return mWidth;
+}
+// gets the total number of tiles in a column
+std::int32_t Tileset::getHeight() const {
+    return mHeight;
+}
+// length of an edge of the tile in pixels
+int Tileset::getTileSize() const {
+    return mTileSize;
+}
 
-    
 void Tileset::setTileset(Texture* texture) {
     mTileset = texture;
     mTilesPerRow = texture->getDimensions().width / mTileSize;
     mTileCount = mTilesPerRow * texture->getDimensions().height / mTileSize;
 }
 
-bool Tileset::loadLayer(std::string& path) {
+bool Tileset::loadLayer(const std::string& path) {
     std::vector<int> cells;
     int width = 0;
     int height = 0;
@@ -116,7 +127,43 @@ bool Tileset::loadLayer(std::string& path) {
         mWidth = width;
         mHeight = height;
     }
-    mLayers.push_back(Layer{path,std::move(cells)});
+    mLayers.push_back(Layer{path, std::move(cells)});
+    return true;
+}
+
+bool Tileset::loadCollision(const std::string& path) {
+    std::vector<int> cells;
+
+    int width = 1;
+    int height = 1;
+    if (!parseCsv(path, cells, width, height)) {
+        return false;
+    }
+    if (!mCheckSize(width, height, path)) {
+        return false;
+    }
+    for (size_t i = 0; i < cells.size(); i++) {
+        const int tile = cells[i];
+        if (tile < -1 || tile > 255 ||tile >= mTileCount) {
+            const int row = static_cast<int>(i) / width + 1;
+            const int column = static_cast<int>(i) / height + 1;
+            std::cerr << path << ": row " << row << ", column " << column << ": tile "
+                      << tile << " out of range (under -1 or over 255)\n";
+            return false;
+        }
+
+    }
+    if (mWidth == 0) {
+        mWidth = width;
+        mHeight = height;
+    }
+    // convert int cells vector to 1B int    
+    std::vector<uint8_t> cellsOneByte;
+    cellsOneByte.reserve(cells.size());
+    for (size_t i = 0; i < cells.size(); i++) {
+        cellsOneByte[i] = (uint8_t)cells[i];
+    }
+    mCollision = std::move(cellsOneByte);
     return true;
 }
 ////////////////////
