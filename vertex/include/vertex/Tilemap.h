@@ -12,10 +12,10 @@ struct Layer {
     std::vector<int> cells{};
 };
 
-class Tileset {
+class Tilemap {
 public:
     // 
-    Tileset(int tileSize, Texture* texture);
+    Tilemap(int tileSize, Texture* texture);
 
     // gets the total number of tiles in a row
     std::int32_t getWidth() const;
@@ -25,7 +25,7 @@ public:
     int getTileSize() const;
 
     // stores the pointer to texture and computes m tiles per row from the texture's width
-    void setTileset(Texture* texture);
+    void setTilemap(Texture* texture);
     // parses one csv into a new visual layer and returns bool
     bool loadLayer(const std::string& path);
     // parses one csv into a collision grid
@@ -50,11 +50,11 @@ private:
     // collision layer
     std::vector<uint8_t> mCollision;
     // pointer to the texture
-    Texture* mTileset;
+    Texture* mTilemap;
 
     int mTileCount{};
 
-    // how many tiles fit across the tileset image
+    // how many tiles fit across the tilemap image
     int mTilesPerRow{};
 
     bool mCheckSize(int width, int height, const std::string& path) const;

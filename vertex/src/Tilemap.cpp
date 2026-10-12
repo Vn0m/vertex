@@ -1,4 +1,4 @@
-#include "vertex/Tileset.h"
+#include "vertex/Tilemap.h"
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -79,29 +79,29 @@ bool parseCsv(const std::string& path, std::vector<int>& outCells, int outWidth,
 
 namespace vertex {
 
-Tileset::Tileset(int tileSize, Texture* texture)
-    : mTileSize(tileSize), mTileset(texture) {}
+Tilemap::Tilemap(int tileSize, Texture* texture)
+    : mTileSize(tileSize), mTilemap(texture) {}
 
 // gets the total number of tiles in a row
-std::int32_t Tileset::getWidth() const {
+std::int32_t Tilemap::getWidth() const {
     return mWidth;
 }
 // gets the total number of tiles in a column
-std::int32_t Tileset::getHeight() const {
+std::int32_t Tilemap::getHeight() const {
     return mHeight;
 }
 // length of an edge of the tile in pixels
-int Tileset::getTileSize() const {
+int Tilemap::getTileSize() const {
     return mTileSize;
 }
 
-void Tileset::setTileset(Texture* texture) {
-    mTileset = texture;
+void Tilemap::setTilemap(Texture* texture) {
+    mTilemap = texture;
     mTilesPerRow = texture->getDimensions().width / mTileSize;
     mTileCount = mTilesPerRow * texture->getDimensions().height / mTileSize;
 }
 
-bool Tileset::loadLayer(const std::string& path) {
+bool Tilemap::loadLayer(const std::string& path) {
     std::vector<int> cells;
     int width = 0;
     int height = 0;
@@ -116,7 +116,7 @@ bool Tileset::loadLayer(const std::string& path) {
         const int tile = cells[i];
         if (tile < -1 || tile >= mTileCount) {
             const int row = static_cast<int>(i) / width + 1;
-            const int column = static_cast<int>(i) / height + 1;
+            const int column = static_cast<int>(i) % height + 1;
             std::cerr << path << ": row " << row << ", column " << column << ": tile "
                       << tile << " out of range (-1 to " << mTileCount - 1 << ")\n";
             return false;
@@ -131,7 +131,7 @@ bool Tileset::loadLayer(const std::string& path) {
     return true;
 }
 
-bool Tileset::loadCollision(const std::string& path) {
+bool Tilemap::loadCollision(const std::string& path) {
     std::vector<int> cells;
 
     int width = 1;
@@ -144,20 +144,19 @@ bool Tileset::loadCollision(const std::string& path) {
     }
     for (size_t i = 0; i < cells.size(); i++) {
         const int tile = cells[i];
-        if (tile < -1 || tile > 255 ||tile >= mTileCount) {
+        if (tile < 0 || tile > 255) {
             const int row = static_cast<int>(i) / width + 1;
-            const int column = static_cast<int>(i) / height + 1;
+            const int column = static_cast<int>(i) % height + 1;
             std::cerr << path << ": row " << row << ", column " << column << ": tile "
-                      << tile << " out of range (under -1 or over 255)\n";
+                      << tile << " out of range (under 0 or over 255)\n";
             return false;
         }
-
     }
     if (mWidth == 0) {
         mWidth = width;
         mHeight = height;
     }
-    // convert int cells vector to 1B int    
+    // convert int cells vector to 1B int
     std::vector<uint8_t> cellsOneByte;
     cellsOneByte.reserve(cells.size());
     for (size_t i = 0; i < cells.size(); i++) {
@@ -169,7 +168,7 @@ bool Tileset::loadCollision(const std::string& path) {
 ////////////////////
 // private functions
 ////////////////////
-bool Tileset::mCheckSize(int width, int height, const std::string& path) const {
+bool Tilemap::mCheckSize(int width, int height, const std::string& path) const {
     if (mWidth == 0) {
         return true;
     }
