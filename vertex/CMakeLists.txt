@@ -40,6 +40,21 @@ foreach(_test SparseSet Registry)
     add_test(NAME ${_target} COMMAND ${_target})
 endforeach()
 
+add_executable(vertex_physics_test
+    tests/physics/PhysicsTestMain.cpp
+    tests/physics/PhysicsStressTest.cpp
+)
+target_link_libraries(vertex_physics_test PRIVATE vertex)
+target_compile_definitions(vertex_physics_test PRIVATE
+    VERTEX_TEST_ASSET_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../glade/assets"
+)
+
+if(MSVC)
+    target_compile_options(vertex_physics_test PRIVATE /W4)
+else()
+    target_compile_options(vertex_physics_test PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
 add_executable(vertex_bench bench/SpriteBench.cpp)
 target_link_libraries(vertex_bench PRIVATE vertex)
 target_compile_definitions(vertex_bench PRIVATE
