@@ -34,9 +34,9 @@ public:
     //
     void draw(Renderer& renderer, const Rect& view) const;
 
-    bool isSolid(int cellx, int celly);
-    void worldToCell(glm::vec2 positon);
-    bool overlapsSolid(glm::vec2 position, int size);
+    bool isSolid(int x, int y) const;
+    glm::ivec2 worldToCell(glm::vec2 positon) const;
+    bool overlapsSolid(glm::vec2 position, glm::vec2 size) const;
 
 private:
     // map width in cells
@@ -58,7 +58,7 @@ private:
 
     bool CheckSize(int width, int height, const std::string& path) const;
     int index(int x, int y) const;
-    bool inBounds(int x, int y);
+    bool inBounds(int x, int y) const;
     glm::vec4 tileUV(int tile) const;
 };
 }

@@ -173,10 +173,10 @@ void Tilemap::draw(Renderer& renderer, const Rect& view) const {
 
     const int firstX = std::max(0, static_cast<int>(std::floor(view.position.x / ts)));
     const int firstY = std::max(0, static_cast<int>(std::floor(view.position.y / ts)));
-    const int endX = std::min(mWidth,
-        static_cast<int>(std::ceil((view.position.x + view.size.x) / ts)));
-    const int endY = std::min(mHeight,
-        static_cast<int>(std::ceil((view.position.y + view.size.y) / ts)));
+    const int endX = std::min(
+        mWidth, static_cast<int>(std::ceil((view.position.x + view.size.x) / ts)));
+    const int endY = std::min(
+        mHeight, static_cast<int>(std::ceil((view.position.y + view.size.y) / ts)));
 
     const glm::vec2 size{ts, ts};
 
@@ -193,6 +193,36 @@ void Tilemap::draw(Renderer& renderer, const Rect& view) const {
             }
         }
     }
+}
+glm::ivec2 Tilemap::worldToCell(glm::vec2 position) const {
+    const float ts = static_cast<float>(mTileSize);
+    return {static_cast<int>(std::floor(position.x / ts)),
+            static_cast<int>(std::floor(position.y / ts))};
+}
+bool Tilemap::isSolid(int x, int y) const {
+    if (!inBounds(x, y)) {
+        return true;
+    }
+    if (mCollision.empty()) {
+        return false;
+    }
+    return mCollision[index(x, y)] != 0;
+}
+bool Tilemap::overlapsSolid(glm::vec2 position, glm::vec2 size) const {
+    const float ts = static_cast<float>(mTileSize);
+
+    const glm::ivec2 first = worldToCell(position);
+    const int lastX = static_cast<int>(std::ceil((position.x + size.x) / ts)) - 1;
+    const int lastY = static_cast<int>(std::ceil((position.y + size.y) / ts)) - 1;
+
+    for (int y = first.y; y <= lastY; ++y) {
+        for (int x = first.x; x <= lastX; ++x) {
+            if (isSolid(x, y)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 ////////////////////
 // private functions
@@ -223,4 +253,7 @@ int Tilemap::index(int x, int y) const {
     return y * mWidth + x;
 }
 
+bool Tilemap::inBounds(int x, int y) const {
+    return x >= 0 && x < mWidth && y >= 0 && y < mHeight;
+}
 }
