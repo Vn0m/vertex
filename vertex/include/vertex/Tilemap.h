@@ -25,14 +25,14 @@ public:
     int getTileSize() const;
 
     // stores the pointer to texture and computes m tiles per row from the texture's width
-    void setTilemap(Texture* texture);
+    void setTileset(Texture* texture);
     // parses one csv into a new visual layer and returns bool
     bool loadLayer(const std::string& path);
     // parses one csv into a collision grid
     bool loadCollision(const std::string& path);
 
     //
-    void draw(Renderer& renderer, glm::vec2 position);
+    void draw(Renderer& renderer, const Rect& view) const;
 
     bool isSolid(int cellx, int celly);
     void worldToCell(glm::vec2 positon);
@@ -57,7 +57,7 @@ private:
     int mTilesPerRow{};
 
     bool CheckSize(int width, int height, const std::string& path) const;
-    std::int32_t index(int x, int y);
+    int index(int x, int y) const;
     bool inBounds(int x, int y);
     glm::vec4 tileUV(int tile) const;
 };

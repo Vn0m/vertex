@@ -5,6 +5,7 @@
 #include <string_view>
 #include <charconv>
 #include <iostream>
+#include <algorithm>
 namespace {
 bool parseCsv(const std::string& path, std::vector<int>& outCells, int outWidth,
               int outHeight) {
@@ -80,7 +81,10 @@ bool parseCsv(const std::string& path, std::vector<int>& outCells, int outWidth,
 namespace vertex {
 
 Tilemap::Tilemap(int tileSize, Texture* texture)
-    : mTileSize(tileSize), mTileset(texture) {}
+    : mTileSize(tileSize), mTileset(texture) {
+    mTilesPerRow = texture->getDimensions().width / mTileSize;
+    mTileCount = mTilesPerRow * texture->getDimensions().height / mTileSize;
+}
 
 // gets the total number of tiles in a row
 std::int32_t Tilemap::getWidth() const {
@@ -95,7 +99,7 @@ int Tilemap::getTileSize() const {
     return mTileSize;
 }
 
-void Tilemap::setTilemap(Texture* texture) {
+void Tilemap::setTileset(Texture* texture) {
     mTileset = texture;
     mTilesPerRow = texture->getDimensions().width / mTileSize;
     mTileCount = mTilesPerRow * texture->getDimensions().height / mTileSize;
@@ -164,6 +168,32 @@ bool Tilemap::loadCollision(const std::string& path) {
     mCollision = std::move(cellsOneByte);
     return true;
 }
+void Tilemap::draw(Renderer& renderer, const Rect& view) const {
+    const float ts = static_cast<float>(mTileSize);
+
+    const int firstX = std::max(0, static_cast<int>(std::floor(view.position.x / ts)));
+    const int firstY = std::max(0, static_cast<int>(std::floor(view.position.y / ts)));
+    const int endX = std::min(mWidth,
+        static_cast<int>(std::ceil((view.position.x + view.size.x) / ts)));
+    const int endY = std::min(mHeight,
+        static_cast<int>(std::ceil((view.position.y + view.size.y) / ts)));
+
+    const glm::vec2 size{ts, ts};
+
+    for (const Layer& layer : mLayers) {
+        for (int y = firstY; y < endY; ++y) {
+            for (int x = firstX; x < endX; ++x) {
+                const int tile = layer.cells[index(x, y)];
+                if (tile < 0) {
+                    continue;
+                }
+                const glm::vec2 pos{x * ts, y * ts};
+                renderer.drawSprite(*mTileset, pos, size, tileUV(tile),
+                                    {1.0f, 1.0f, 1.0f, 1.0f});
+            }
+        }
+    }
+}
 ////////////////////
 // private functions
 ////////////////////
@@ -185,9 +215,12 @@ glm::vec4 Tilemap::tileUV(int tile) const {
     int column = mTilesPerRow % row;
     const Dimensions tex = mTileset->getDimensions();
     const float w = static_cast<float>(mTileSize) / static_cast<float>(tex.width);
-    const float h  = static_cast<float>(mTileSize) / static_cast<float>(tex.height);
+    const float h = static_cast<float>(mTileSize) / static_cast<float>(tex.height);
     return {w * column, row * h, w, h};
 }
 
+int Tilemap::index(int x, int y) const {
+    return y * mWidth + x;
+}
 
 }
