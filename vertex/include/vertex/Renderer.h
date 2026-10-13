@@ -28,6 +28,10 @@ public:
                     glm::vec4 tint = glm::vec4(1.0f));
     void end();
 
+    int drawCalls() const {
+        return mDrawCalls;
+    }
+
     void setViewport(int width, int height);
 
 private:
@@ -50,6 +54,7 @@ private:
 
     std::vector<Vertex> mVertices;
     Texture* mTexture{nullptr};
+    int mDrawCalls{0};
 };
 
 }

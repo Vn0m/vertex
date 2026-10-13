@@ -84,6 +84,7 @@ void Renderer::clear(const glm::vec4& color) {
 void Renderer::begin() {
     mVertices.clear();
     mTexture = nullptr;
+    mDrawCalls = 0;
 }
 
 void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
@@ -128,6 +129,7 @@ void Renderer::flush() {
     glBindVertexArray(0);
 
     mVertices.clear();
+    ++mDrawCalls;
 }
 
 void Renderer::setViewport(int width, int height) {
