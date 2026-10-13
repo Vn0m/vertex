@@ -40,10 +40,31 @@ foreach(_test SparseSet Registry)
     add_test(NAME ${_target} COMMAND ${_target})
 endforeach()
 
+# Headless check that every collision method matches brute force. Needs the physics
+# test's spawning/update code and the method sources, so it isn't in the loop above.
+add_executable(vertex_BroadPhaseTest
+    tests/BroadPhaseTest.cpp
+    tests/physics/PhysicsStressTest.cpp
+    tests/physics/BruteForceCollision.cpp
+    tests/physics/GridCollision.cpp
+    tests/physics/SpatialGrid.cpp
+)
+target_link_libraries(vertex_BroadPhaseTest PRIVATE vertex)
+
+if(MSVC)
+    target_compile_options(vertex_BroadPhaseTest PRIVATE /W4)
+else()
+    target_compile_options(vertex_BroadPhaseTest PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+add_test(NAME vertex_BroadPhaseTest COMMAND vertex_BroadPhaseTest)
+
 add_executable(vertex_physics_test
     tests/physics/PhysicsTestMain.cpp
     tests/physics/PhysicsStressTest.cpp
     tests/physics/BruteForceCollision.cpp
+    tests/physics/GridCollision.cpp
+    tests/physics/SpatialGrid.cpp
 )
 target_link_libraries(vertex_physics_test PRIVATE vertex)
 target_compile_definitions(vertex_physics_test PRIVATE

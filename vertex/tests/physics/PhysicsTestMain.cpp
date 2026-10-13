@@ -11,6 +11,7 @@
 
 #include "BruteForceCollision.h"
 #include "CollisionMethod.h"
+#include "GridCollision.h"
 #include "PhysicsStressTest.h"
 
 namespace {
@@ -25,8 +26,8 @@ double millisecondsBetween(Clock::time_point start, Clock::time_point end) {
     return std::chrono::duration<double, std::milli>(end - start).count();
 }
 
-// "draw" is CPU-side submission only (GL calls return before the GPU finishes), and
-// "frame" includes swapBuffers, so with vsync on it is capped at the refresh rate.
+// "draw" is CPU-side submission only
+
 struct FrameTimings {
     double collideMs{0.0};
     double updateMs{0.0};
@@ -50,12 +51,15 @@ std::unique_ptr<vertex::tests::CollisionMethod> makeCollisionMethod(
     if (name == "brute") {
         return std::make_unique<vertex::tests::BruteForceCollision>();
     }
+    if (name == "grid") {
+        return std::make_unique<vertex::tests::GridCollision>();
+    }
     return nullptr;
 }
 
 void printUsage(const char* program) {
     std::cerr << "usage: " << program << " <method> [entityCount]\n"
-              << "  method       brute\n"
+              << "  method       brute | grid\n"
               << "  entityCount  number of bodies (default " << kDefaultEntityCount
               << ")\n";
 }
