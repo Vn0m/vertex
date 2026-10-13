@@ -48,6 +48,8 @@ add_executable(vertex_BroadPhaseTest
     tests/physics/BruteForceCollision.cpp
     tests/physics/GridCollision.cpp
     tests/physics/SpatialGrid.cpp
+    tests/physics/QuadTreeCollision.cpp
+    tests/physics/QuadTree.cpp
 )
 target_link_libraries(vertex_BroadPhaseTest PRIVATE vertex)
 
@@ -65,6 +67,8 @@ add_executable(vertex_physics_test
     tests/physics/BruteForceCollision.cpp
     tests/physics/GridCollision.cpp
     tests/physics/SpatialGrid.cpp
+    tests/physics/QuadTreeCollision.cpp
+    tests/physics/QuadTree.cpp
 )
 target_link_libraries(vertex_physics_test PRIVATE vertex)
 target_compile_definitions(vertex_physics_test PRIVATE

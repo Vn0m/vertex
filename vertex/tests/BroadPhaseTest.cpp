@@ -7,6 +7,7 @@
 #include "physics/CollisionMethod.h"
 #include "physics/GridCollision.h"
 #include "physics/PhysicsStressTest.h"
+#include "physics/QuadTreeCollision.h"
 
 // Verifies every collision method produces exactly the same simulation as brute force.
 
@@ -16,6 +17,7 @@ using vertex::BodyPhysics;
 using vertex::tests::BruteForceCollision;
 using vertex::tests::CollisionMethod;
 using vertex::tests::GridCollision;
+using vertex::tests::QuadTreeCollision;
 using vertex::tests::StressTestConfig;
 using Bodies = std::vector<std::unique_ptr<BodyPhysics>>;
 
@@ -27,6 +29,7 @@ std::vector<std::unique_ptr<CollisionMethod>> methodsUnderTest() {
     std::vector<std::unique_ptr<CollisionMethod>> methods;
     methods.push_back(std::make_unique<BruteForceCollision>());
     methods.push_back(std::make_unique<GridCollision>());
+    methods.push_back(std::make_unique<QuadTreeCollision>());
     return methods;
 }
 

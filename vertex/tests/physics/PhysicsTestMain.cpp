@@ -13,6 +13,7 @@
 #include "CollisionMethod.h"
 #include "GridCollision.h"
 #include "PhysicsStressTest.h"
+#include "QuadTreeCollision.h"
 
 namespace {
 
@@ -54,12 +55,15 @@ std::unique_ptr<vertex::tests::CollisionMethod> makeCollisionMethod(
     if (name == "grid") {
         return std::make_unique<vertex::tests::GridCollision>();
     }
+    if (name == "quadtree") {
+        return std::make_unique<vertex::tests::QuadTreeCollision>();
+    }
     return nullptr;
 }
 
 void printUsage(const char* program) {
     std::cerr << "usage: " << program << " <method> [entityCount]\n"
-              << "  method       brute | grid\n"
+              << "  method       brute | grid | quadtree\n"
               << "  entityCount  number of bodies (default " << kDefaultEntityCount
               << ")\n";
 }
