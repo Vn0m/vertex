@@ -9,7 +9,8 @@ namespace {
 constexpr float kTwoPi = 6.28318530717958647692f;
 }
 
-std::vector<std::unique_ptr<BodyPhysics>> createStressTestBodies(const StressTestConfig& config) {
+std::vector<std::unique_ptr<BodyPhysics>> createStressTestBodies(
+    const StressTestConfig& config) {
     std::vector<std::unique_ptr<BodyPhysics>> bodies;
     bodies.reserve(static_cast<std::size_t>(config.entityCount));
 
@@ -23,7 +24,8 @@ std::vector<std::unique_ptr<BodyPhysics>> createStressTestBodies(const StressTes
     std::uniform_real_distribution<float> angle(0.0f, kTwoPi);
 
     for (int i = 0; i < config.entityCount; ++i) {
-        auto body = std::make_unique<BodyPhysics>(glm::vec2{posX(rng), posY(rng)}, config.bodySize);
+        auto body = std::make_unique<BodyPhysics>(glm::vec2{posX(rng), posY(rng)},
+                                                  config.bodySize);
 
         const float a = angle(rng);
         const float s = speed(rng);
@@ -35,14 +37,16 @@ std::vector<std::unique_ptr<BodyPhysics>> createStressTestBodies(const StressTes
     return bodies;
 }
 
-void stepStressTest(std::vector<std::unique_ptr<BodyPhysics>>& bodies, float deltaTime,
-                    const Dimensions& windowSize) {
+void resolveStressTestCollisions(std::vector<std::unique_ptr<BodyPhysics>>& bodies) {
     for (std::size_t i = 0; i < bodies.size(); ++i) {
         for (std::size_t j = i + 1; j < bodies.size(); ++j) {
             bodies[i]->resolveCollision(*bodies[j]);
         }
     }
+}
 
+void updateStressTestBodies(std::vector<std::unique_ptr<BodyPhysics>>& bodies,
+                            float deltaTime, const Dimensions& windowSize) {
     for (auto& body : bodies) {
         body->update(deltaTime, windowSize);
     }
@@ -52,7 +56,7 @@ void drawStressTest(Renderer& renderer, Texture& tex,
                     const std::vector<std::unique_ptr<BodyPhysics>>& bodies) {
     for (const auto& body : bodies) {
         const glm::vec3 color = body->isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f)
-                                                       : glm::vec3(1.0f, 1.0f, 1.0f);
+                                                      : glm::vec3(1.0f, 1.0f, 1.0f);
         renderer.drawSprite(tex, body->getPosition(), body->getSize(), {0, 0, 1, 1},
                             glm::vec4(color, 1.0f));
     }
