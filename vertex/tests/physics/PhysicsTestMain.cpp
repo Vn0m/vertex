@@ -6,8 +6,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <string>
 
+#include "BruteForceCollision.h"
+#include "CollisionMethod.h"
 #include "PhysicsStressTest.h"
 
 namespace {
@@ -22,7 +25,6 @@ double millisecondsBetween(Clock::time_point start, Clock::time_point end) {
     return std::chrono::duration<double, std::milli>(end - start).count();
 }
 
-// Per-phase time accumulated since the last report, printed as per-frame averages.
 // "draw" is CPU-side submission only (GL calls return before the GPU finishes), and
 // "frame" includes swapBuffers, so with vsync on it is capped at the refresh rate.
 struct FrameTimings {
@@ -32,22 +34,41 @@ struct FrameTimings {
     double frameMs{0.0};
     int frames{0};
 
-    void report(int entityCount) const {
+    void report(const char* methodName, int entityCount) const {
         std::printf(
-            "[%d bodies] %5.1f fps | frame %6.2f ms | collide %6.2f | update %5.2f | "
+            "[%s, %d bodies] %5.1f fps | frame %6.2f ms | collide %6.2f | update %5.2f | "
             "draw %6.2f ms\n",
-            entityCount, frames * 1000.0 / frameMs, frameMs / frames, collideMs / frames,
-            updateMs / frames, drawMs / frames);
+            methodName, entityCount, frames * 1000.0 / frameMs, frameMs / frames,
+            collideMs / frames, updateMs / frames, drawMs / frames);
     }
 };
 
-int runStressTest(int entityCount) {
+// Maps a command-line name to a collision method; returns nullptr for unknown names.
+// New methods (grid, quadtree) get registered here.
+std::unique_ptr<vertex::tests::CollisionMethod> makeCollisionMethod(
+    const std::string& name) {
+    if (name == "brute") {
+        return std::make_unique<vertex::tests::BruteForceCollision>();
+    }
+    return nullptr;
+}
+
+void printUsage(const char* program) {
+    std::cerr << "usage: " << program << " <method> [entityCount]\n"
+              << "  method       brute\n"
+              << "  entityCount  number of bodies (default " << kDefaultEntityCount
+              << ")\n";
+}
+
+int runStressTest(vertex::tests::CollisionMethod& method, int entityCount) {
     vertex::tests::StressTestConfig config;
     config.entityCount = entityCount;
     config.windowSize = {2000, 1080};
 
     vertex::Window window;
-    if (!window.create(config.windowSize, "Vertex - Physics Stress Test")) {
+    const std::string title =
+        std::string("Vertex - Physics Stress Test (") + method.name() + ")";
+    if (!window.create(config.windowSize, title)) {
         return 1;
     }
     window.setVsync(true);
@@ -70,7 +91,7 @@ int runStressTest(int entityCount) {
         window.pollEvents();
 
         const Clock::time_point collideStart = Clock::now();
-        vertex::tests::resolveStressTestCollisions(bodies);
+        method.resolve(bodies);
         const Clock::time_point updateStart = Clock::now();
         vertex::tests::updateStressTestBodies(bodies, kTestDelta,
                                               window.framebufferSize());
@@ -91,7 +112,7 @@ int runStressTest(int entityCount) {
 
         if (millisecondsBetween(lastReport, frameEnd) >=
             kReportIntervalSeconds * 1000.0) {
-            timings.report(entityCount);
+            timings.report(method.name(), entityCount);
             timings = FrameTimings{};
             lastReport = frameEnd;
         }
@@ -103,12 +124,24 @@ int runStressTest(int entityCount) {
 }
 
 int main(int argc, char** argv) {
-    const int entityCount = argc > 1 ? std::atoi(argv[1]) : kDefaultEntityCount;
-    if (entityCount <= 0) {
-        std::cerr << "usage: " << argv[0] << " [entityCount]  (default "
-                  << kDefaultEntityCount << ")\n";
+    if (argc < 2) {
+        printUsage(argv[0]);
         return 1;
     }
 
-    return runStressTest(entityCount);
+    auto method = makeCollisionMethod(argv[1]);
+    if (!method) {
+        std::cerr << "unknown method '" << argv[1] << "'\n";
+        printUsage(argv[0]);
+        return 1;
+    }
+
+    const int entityCount = argc > 2 ? std::atoi(argv[2]) : kDefaultEntityCount;
+    if (entityCount <= 0) {
+        std::cerr << "entityCount must be a positive integer\n";
+        printUsage(argv[0]);
+        return 1;
+    }
+
+    return runStressTest(*method, entityCount);
 }

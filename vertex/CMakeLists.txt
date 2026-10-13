@@ -43,6 +43,7 @@ endforeach()
 add_executable(vertex_physics_test
     tests/physics/PhysicsTestMain.cpp
     tests/physics/PhysicsStressTest.cpp
+    tests/physics/BruteForceCollision.cpp
 )
 target_link_libraries(vertex_physics_test PRIVATE vertex)
 target_compile_definitions(vertex_physics_test PRIVATE

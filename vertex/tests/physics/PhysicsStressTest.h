@@ -26,9 +26,8 @@ struct StressTestConfig {
 std::vector<std::unique_ptr<BodyPhysics>> createStressTestBodies(
     const StressTestConfig& config);
 
-// Resolves collisions for every pair of bodies (O(n^2), fine up to a few
-// thousand bodies).
-void resolveStressTestCollisions(std::vector<std::unique_ptr<BodyPhysics>>& bodies);
+// Collisions are resolved by a CollisionMethod (see CollisionMethod.h), chosen on the
+// command line, so each broad phase can be timed and verified separately.
 
 // Advances each body by deltaTime, bouncing off the window edges.
 void updateStressTestBodies(std::vector<std::unique_ptr<BodyPhysics>>& bodies,
