@@ -69,9 +69,11 @@ int main(int argc, char** argv) {
         window.pollEvents();
         renderer.clear({0.10f, 0.11f, 0.15f, 1.0f});
 
+        renderer.begin();
         registry.each<Position>([&](vertex::Entity, Position& p) {
             renderer.drawSprite(texture, p.value, {8.0f, 8.0f}, {0, 0, 1, 1});
         });
+        renderer.end();
 
         window.swapBuffers();
 
