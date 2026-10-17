@@ -35,12 +35,13 @@ public:
     void setViewport(int width, int height);
 
 private:
-    struct Vertex {
+    struct RenderVertex {
         glm::vec2 position;
         glm::vec2 uv;
         glm::vec4 color;
     };
 
+    // sprites per batch
     static constexpr std::size_t kMaxSprites = 10000;
 
     void flush();
@@ -52,7 +53,7 @@ private:
     unsigned int mVbo{0};
     unsigned int mEbo{0};
 
-    std::vector<Vertex> mVertices;
+    std::vector<RenderVertex> mVertices;
     Texture* mTexture{nullptr};
     int mDrawCalls{0};
 };
