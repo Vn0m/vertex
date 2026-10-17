@@ -33,14 +33,15 @@ vendor/   third-party dependencies
 
 ## Benchmarks
 
-Frame time to draw N sprites, before sprite batching (one draw call per sprite):
+Frame time to draw N sprites with one texture. Unbatched issues one draw call per
+sprite, batched issues one draw call per frame.
 
-| Sprites | Median | p95 |
-|--------:|-------:|----:|
-| 100 | 0.51 ms | 1.45 ms |
-| 1,000 | 1.68 ms | 3.52 ms |
-| 5,000 | 7.86 ms | 9.56 ms |
-| 10,000 | 16.62 ms | 17.32 ms |
+| Sprites | Unbatched median | Batched median | Unbatched p95 | Batched p95 |
+|--------:|-----------------:|---------------:|--------------:|------------:|
+| 100 | 0.51 ms | 0.61 ms | 1.45 ms | 3.68 ms |
+| 1,000 | 1.68 ms | 0.54 ms | 3.52 ms | 1.57 ms |
+| 5,000 | 7.86 ms | 0.57 ms | 9.56 ms | 1.49 ms |
+| 10,000 | 16.62 ms | 0.65 ms | 17.32 ms | 1.47 ms |
 
 Apple M3, Release build, vsync off. 60 warmup frames discarded, then median and
 p95 of the next 500.
