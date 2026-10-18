@@ -3,26 +3,13 @@
 #include <glad/gl.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <cstddef>
 #include <string>
+#include <vector>
 
 #include "vertex/Shader.h"
 
 namespace {
-
-// clang-format off
-constexpr float kQuadVertices[] = {
-    // pos      // uv
-    0.0f, 0.0f, 0.0f, 0.0f,
-    1.0f, 0.0f, 1.0f, 0.0f,
-    1.0f, 1.0f, 1.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f
-};
-
-constexpr unsigned int kQuadIndices[] = {
-    0, 1, 2,
-    2, 3, 0,
-};
-// clang-format on
 
 std::string engineAsset(const char* relative) {
     return std::string(VERTEX_ASSET_DIR) + "/" + relative;
@@ -55,21 +42,38 @@ bool Renderer::init() {
 
     glGenBuffers(1, &mVbo);
     glBindBuffer(GL_ARRAY_BUFFER, mVbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(kQuadVertices), kQuadVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, kMaxSprites * 4 * sizeof(RenderVertex), nullptr,
+                 GL_DYNAMIC_DRAW);
+
+    std::vector<unsigned int> indices;
+    indices.reserve(kMaxSprites * 6);
+    for (unsigned int i = 0; i < kMaxSprites; ++i) {
+        const unsigned int first = i * 4;
+        indices.insert(indices.end(),
+                       {first, first + 1, first + 2, first + 2, first + 3, first});
+    }
 
     glGenBuffers(1, &mEbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEbo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(kQuadIndices), kQuadIndices,
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
+                 indices.data(), GL_STATIC_DRAW);
 
-    const int stride = 4 * sizeof(float);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
+    const int stride = sizeof(RenderVertex);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride,
+                          (void*)offsetof(RenderVertex, position));
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride,
+                          (void*)offsetof(RenderVertex, uv));
     glEnableVertexAttribArray(1);
 
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, stride,
+                          (void*)offsetof(RenderVertex, color));
+    glEnableVertexAttribArray(2);
+
     glBindVertexArray(0);
+
+    mVertices.reserve(kMaxSprites * 4);
     return true;
 }
 
@@ -78,36 +82,55 @@ void Renderer::clear(const glm::vec4& color) {
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-/**
- * @brief draws a sprite
- *
- * @param tex the image to sample, instantiate a texture first
- * @param pos position of the sprite's top-left corner in pixels (feeds the glm::translate
- call)
- * @param size of the sprite in pixels (feeds glm::scale call)
- * @param uvRect a vec4 holding {x,y,width,height} to choose which part of the image you
- * want, for example {0,0,1,1} for the whole picture, or {0,0,0.5,1}.
- * @param tint color multiplied into the sampled texture, defaults to white (no change)
- */
+void Renderer::begin() {
+    mVertices.clear();
+    mTexture = nullptr;
+    mDrawCalls = 0;
+}
+
 void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
                           glm::vec4 tint) {
-    glm::mat4 model{1.0f};
-    model = glm::translate(model, glm::vec3(pos, 0.0f));
-    model = glm::scale(model, glm::vec3(size, 1.0f));
+    if (mTexture != &tex || mVertices.size() == kMaxSprites * 4) {
+        flush();
+    }
+    mTexture = &tex;
+
+    const glm::vec2 uvMin{uvRect.x, uvRect.y};
+    const glm::vec2 uvMax = uvMin + glm::vec2{uvRect.z, uvRect.w};
+
+    mVertices.push_back({pos, uvMin, tint});
+    mVertices.push_back({{pos.x + size.x, pos.y}, {uvMax.x, uvMin.y}, tint});
+    mVertices.push_back({pos + size, uvMax, tint});
+    mVertices.push_back({{pos.x, pos.y + size.y}, {uvMin.x, uvMax.y}, tint});
+}
+
+void Renderer::end() {
+    flush();
+}
+
+void Renderer::flush() {
+    if (mVertices.empty()) {
+        return;
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, mVbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, mVertices.size() * sizeof(RenderVertex),
+                    mVertices.data());
 
     mShader->bind();
     mShader->setInt("picture", 0);
-    mShader->setVec4("uvRect", uvRect);
-    mShader->setVec4("uColorTint", tint);
-    mShader->setMat4("model", model);
     mShader->setMat4("projection", mProjection);
 
     glActiveTexture(GL_TEXTURE0);
-    tex.Bind();
+    mTexture->Bind();
 
+    const auto indexCount = static_cast<GLsizei>(mVertices.size() / 4 * 6);
     glBindVertexArray(mVao);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
+
+    mVertices.clear();
+    ++mDrawCalls;
 }
 
 void Renderer::setViewport(int width, int height) {

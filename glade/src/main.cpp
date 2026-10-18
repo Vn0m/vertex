@@ -73,12 +73,14 @@ int main() {
                                                       : glm::vec3(1.0f, 1.0f, 1.0f);
 
         renderer.clear({0.10f, 0.11f, 0.15f, 1.0f});
+        renderer.begin();
         renderer.drawSprite(whiteSquare, rectA.getPosition(), rectA.getSize(),
                             {0, 0, 1, 1}, glm::vec4(colorA, 1.0f));
         renderer.drawSprite(whiteSquare, rectB.getPosition(), rectB.getSize(),
                             {0, 0, 1, 1}, glm::vec4(colorB, 1.0f));
         renderer.drawSprite(whiteSquare, playerRect.getPosition(), playerRect.getSize(),
                             {0, 0, 1, 1}, glm::vec4(colorC, 1.0f));
+        renderer.end();
 
         window.swapBuffers();
     }
