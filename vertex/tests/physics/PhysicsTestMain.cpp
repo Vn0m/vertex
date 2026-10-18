@@ -30,14 +30,15 @@ struct FrameTimings {
     double updateMs{0.0};
     double drawMs{0.0};
     double frameMs{0.0};
+    int drawCalls{0};
     int frames{0};
 
     void report(int entityCount) const {
         std::printf(
             "[%d bodies] %5.1f fps | frame %6.2f ms | collide %6.2f | update %5.2f | "
-            "draw %6.2f ms\n",
+            "draw %6.2f ms (%.1f calls)\n",
             entityCount, frames * 1000.0 / frameMs, frameMs / frames, collideMs / frames,
-            updateMs / frames, drawMs / frames);
+            updateMs / frames, drawMs / frames, static_cast<double>(drawCalls) / frames);
     }
 };
 
@@ -77,7 +78,9 @@ int runStressTest(int entityCount) {
         const Clock::time_point drawStart = Clock::now();
 
         renderer.clear({0.10f, 0.11f, 0.15f, 1.0f});
+        renderer.begin();
         vertex::tests::drawStressTest(renderer, whiteSquare, bodies);
+        renderer.end();
         const Clock::time_point drawEnd = Clock::now();
 
         window.swapBuffers();
@@ -87,6 +90,7 @@ int runStressTest(int entityCount) {
         timings.updateMs += millisecondsBetween(updateStart, drawStart);
         timings.drawMs += millisecondsBetween(drawStart, drawEnd);
         timings.frameMs += millisecondsBetween(frameStart, frameEnd);
+        timings.drawCalls += renderer.drawCalls();
         ++timings.frames;
 
         if (millisecondsBetween(lastReport, frameEnd) >=
