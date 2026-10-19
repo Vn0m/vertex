@@ -83,13 +83,13 @@ namespace vertex {
 
 Tilemap::Tilemap(int tileSize, Texture* texture)
     : mTileSize(tileSize), mTileset(texture) {
-    if( texture == nullptr || tileSize <= 0) {
+    if (texture == nullptr || tileSize <= 0) {
         std::cerr << "Tilemap constructor got passed a nullptr for the texture\n";
         return;
     }
     const Dimensions dimensions = texture->getDimensions();
-    if( dimensions.width < tileSize || dimensions.height < tileSize) {
-        std::cerr<<"tilemap: tileset is smaller than one tile (failed to failed?)\n";
+    if (dimensions.width < tileSize || dimensions.height < tileSize) {
+        std::cerr << "tilemap: tileset is smaller than one tile (failed to failed?)\n";
         return;
     }
     mTilesPerRow = dimensions.width / mTileSize;
@@ -109,7 +109,7 @@ int Tilemap::getTileSize() const {
     return mTileSize;
 }
 
-bool Tilemap::valid() const{
+bool Tilemap::valid() const {
     return mValid;
 }
 void Tilemap::setTileset(Texture* texture) {
@@ -272,7 +272,5 @@ int Tilemap::index(int x, int y) const {
 bool Tilemap::inBounds(int x, int y) const {
     return x >= 0 && x < mWidth && y >= 0 && y < mHeight;
 }
-
-
 
 }

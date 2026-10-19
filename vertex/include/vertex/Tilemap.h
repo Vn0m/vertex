@@ -14,7 +14,7 @@ struct Layer {
 
 class Tilemap {
 public:
-    // 
+    //
     Tilemap(int tileSize, Texture* texture);
 
     // gets the total number of tiles in a row
@@ -33,13 +33,12 @@ public:
     // parses one csv into a collision grid
     bool loadCollision(const std::string& path);
 
-    
     void draw(Renderer& renderer, const Rect& view) const;
 
     bool isSolid(int x, int y) const;
     glm::ivec2 worldToCell(glm::vec2 position) const;
     bool overlapsSolid(glm::vec2 position, glm::vec2 size) const;
-    
+
 private:
     // map width in cells
     std::int32_t mWidth{};
