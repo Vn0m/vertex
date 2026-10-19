@@ -37,7 +37,7 @@ public:
     void draw(Renderer& renderer, const Rect& view) const;
 
     bool isSolid(int x, int y) const;
-    glm::ivec2 worldToCell(glm::vec2 positon) const;
+    glm::ivec2 worldToCell(glm::vec2 position) const;
     bool overlapsSolid(glm::vec2 position, glm::vec2 size) const;
     
 private:
