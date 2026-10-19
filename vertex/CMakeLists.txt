@@ -25,7 +25,7 @@ else()
     target_compile_options(vertex PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-foreach(_test SparseSet Registry)
+foreach(_test SparseSet Registry Camera)
     set(_target vertex_${_test}Test)
 
     add_executable(${_target} tests/${_test}Test.cpp)
