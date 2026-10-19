@@ -50,7 +50,7 @@ private:
     // collision layer
     std::vector<uint8_t> mCollision;
     // pointer to the texture
-    Texture* mTileset;
+    Texture* mTileset{nullptr};
     int mTileCount{};
 
     // how many tiles fit across the tilemap image

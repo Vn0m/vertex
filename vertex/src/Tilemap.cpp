@@ -7,8 +7,9 @@
 #include <iostream>
 #include <algorithm>
 namespace {
-bool parseCsv(const std::string& path, std::vector<int>& outCells, int outWidth,
-              int outHeight) {
+// helper function
+bool parseCsv(const std::string& path, std::vector<int>& outCells, int& outWidth,
+              int& outHeight) {
     std::ifstream file{path};
     if (!file.is_open()) {
         std::cerr << "failed to open csv file" << path << "\n";
@@ -82,19 +83,21 @@ namespace vertex {
 
 Tilemap::Tilemap(int tileSize, Texture* texture)
     : mTileSize(tileSize), mTileset(texture) {
+    if( texture == nullptr) {
+        std::cerr << "Tilemap constructor got passed a nullptr for the texture";
+    }
     mTilesPerRow = texture->getDimensions().width / mTileSize;
-    mTileCount = mTilesPerRow * texture->getDimensions().height / mTileSize;
+    mTileCount = mTilesPerRow * (texture->getDimensions().height / mTileSize);
 }
 
-// gets the total number of tiles in a row
 std::int32_t Tilemap::getWidth() const {
     return mWidth;
 }
-// gets the total number of tiles in a column
+
 std::int32_t Tilemap::getHeight() const {
     return mHeight;
 }
-// length of an edge of the tile in pixels
+
 int Tilemap::getTileSize() const {
     return mTileSize;
 }
@@ -102,7 +105,7 @@ int Tilemap::getTileSize() const {
 void Tilemap::setTileset(Texture* texture) {
     mTileset = texture;
     mTilesPerRow = texture->getDimensions().width / mTileSize;
-    mTileCount = mTilesPerRow * texture->getDimensions().height / mTileSize;
+    mTileCount = mTilesPerRow * (texture->getDimensions().height / mTileSize);
 }
 
 bool Tilemap::loadLayer(const std::string& path) {
@@ -120,7 +123,7 @@ bool Tilemap::loadLayer(const std::string& path) {
         const int tile = cells[i];
         if (tile < -1 || tile >= mTileCount) {
             const int row = static_cast<int>(i) / width + 1;
-            const int column = static_cast<int>(i) % height + 1;
+            const int column = static_cast<int>(i) % width + 1;
             std::cerr << path << ": row " << row << ", column " << column << ": tile "
                       << tile << " out of range (-1 to " << mTileCount - 1 << ")\n";
             return false;
@@ -150,7 +153,7 @@ bool Tilemap::loadCollision(const std::string& path) {
         const int tile = cells[i];
         if (tile < 0 || tile > 255) {
             const int row = static_cast<int>(i) / width + 1;
-            const int column = static_cast<int>(i) % height + 1;
+            const int column = static_cast<int>(i) % width + 1;
             std::cerr << path << ": row " << row << ", column " << column << ": tile "
                       << tile << " out of range (under 0 or over 255)\n";
             return false;
@@ -242,7 +245,7 @@ bool Tilemap::CheckSize(int width, int height, const std::string& path) const {
 
 glm::vec4 Tilemap::tileUV(int tile) const {
     int row = tile / mTilesPerRow;
-    int column = mTilesPerRow % row;
+    int column = tile % mTilesPerRow;
     const Dimensions tex = mTileset->getDimensions();
     const float w = static_cast<float>(mTileSize) / static_cast<float>(tex.width);
     const float h = static_cast<float>(mTileSize) / static_cast<float>(tex.height);
