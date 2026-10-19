@@ -83,11 +83,18 @@ namespace vertex {
 
 Tilemap::Tilemap(int tileSize, Texture* texture)
     : mTileSize(tileSize), mTileset(texture) {
-    if( texture == nullptr) {
-        std::cerr << "Tilemap constructor got passed a nullptr for the texture";
+    if( texture == nullptr || tileSize <= 0) {
+        std::cerr << "Tilemap constructor got passed a nullptr for the texture\n";
+        return;
     }
-    mTilesPerRow = texture->getDimensions().width / mTileSize;
-    mTileCount = mTilesPerRow * (texture->getDimensions().height / mTileSize);
+    const Dimensions dimensions = texture->getDimensions();
+    if( dimensions.width < tileSize || dimensions.height < tileSize) {
+        std::cerr<<"tilemap: tileset is smaller than one tile (failed to failed?)\n";
+        return;
+    }
+    mTilesPerRow = dimensions.width / mTileSize;
+    mTileCount = mTilesPerRow * (dimensions.height / mTileSize);
+    mValid = true;
 }
 
 std::int32_t Tilemap::getWidth() const {
@@ -102,6 +109,9 @@ int Tilemap::getTileSize() const {
     return mTileSize;
 }
 
+bool Tilemap::valid() const{
+    return mValid;
+}
 void Tilemap::setTileset(Texture* texture) {
     mTileset = texture;
     mTilesPerRow = texture->getDimensions().width / mTileSize;
@@ -109,6 +119,7 @@ void Tilemap::setTileset(Texture* texture) {
 }
 
 bool Tilemap::loadLayer(const std::string& path) {
+    if (mValid == false) return false;
     std::vector<int> cells;
     int width = 0;
     int height = 0;
@@ -139,6 +150,7 @@ bool Tilemap::loadLayer(const std::string& path) {
 }
 
 bool Tilemap::loadCollision(const std::string& path) {
+    if (mValid == false) return false;
     std::vector<int> cells;
 
     int width = 1;
@@ -172,6 +184,7 @@ bool Tilemap::loadCollision(const std::string& path) {
     return true;
 }
 void Tilemap::draw(Renderer& renderer, const Rect& view) const {
+    if (mValid == false) return;
     const float ts = static_cast<float>(mTileSize);
 
     const int firstX = std::max(0, static_cast<int>(std::floor(view.position.x / ts)));
@@ -259,4 +272,7 @@ int Tilemap::index(int x, int y) const {
 bool Tilemap::inBounds(int x, int y) const {
     return x >= 0 && x < mWidth && y >= 0 && y < mHeight;
 }
+
+
+
 }

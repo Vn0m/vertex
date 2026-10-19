@@ -23,6 +23,8 @@ public:
     std::int32_t getHeight() const;
     // length of an edge of the tile in pixels
     int getTileSize() const;
+    // for error handling
+    bool valid() const;
 
     // stores the pointer to texture and computes m tiles per row from the texture's width
     void setTileset(Texture* texture);
@@ -31,13 +33,13 @@ public:
     // parses one csv into a collision grid
     bool loadCollision(const std::string& path);
 
-    //
+    
     void draw(Renderer& renderer, const Rect& view) const;
 
     bool isSolid(int x, int y) const;
     glm::ivec2 worldToCell(glm::vec2 positon) const;
     bool overlapsSolid(glm::vec2 position, glm::vec2 size) const;
-
+    
 private:
     // map width in cells
     std::int32_t mWidth{};
@@ -51,8 +53,8 @@ private:
     std::vector<uint8_t> mCollision;
     // pointer to the texture
     Texture* mTileset{nullptr};
-    int mTileCount{};
 
+    int mTileCount{};
     // how many tiles fit across the tilemap image
     int mTilesPerRow{};
 
@@ -60,5 +62,6 @@ private:
     int index(int x, int y) const;
     bool inBounds(int x, int y) const;
     glm::vec4 tileUV(int tile) const;
+    bool mValid{false};
 };
 }
