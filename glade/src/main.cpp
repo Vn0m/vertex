@@ -12,7 +12,7 @@ int main() {
     window.setVsync(true);
 
     vertex::Renderer renderer;
-    
+
     if (!renderer.init()) {
         return 1;
     }
@@ -20,7 +20,7 @@ int main() {
     vertex::Texture whiteSquare{std::string(GLADE_ASSET_DIR) + "/textures/white.png"};
 
     // create dummy rectangles
-    
+
     vertex::BodyPhysics rectA({250.0f, 300.0f}, {50.0f, 50.0f});
     vertex::BodyPhysics rectB({500.0f, 300.0f}, {50.0f, 50.0f});
     vertex::BodyPhysics playerRect({20.0f, 20.0f}, {50.0f, 50.0f});
