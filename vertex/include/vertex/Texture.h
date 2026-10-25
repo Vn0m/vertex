@@ -6,7 +6,7 @@ namespace vertex {
 class Texture {
 public:
     Texture();
-    Texture(const std::string& fileName);
+    explicit Texture(const std::string& fileName);
 
     void LoadImage(const std::string& fileName);
     Dimensions getDimensions() const;
