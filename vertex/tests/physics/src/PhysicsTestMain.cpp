@@ -9,11 +9,11 @@
 #include <memory>
 #include <string>
 
-#include "BruteForceCollision.h"
-#include "CollisionMethod.h"
-#include "GridCollision.h"
+#include "physics/BruteForceCollision.h"
+#include "physics/CollisionMethod.h"
+#include "physics/GridCollision.h"
 #include "PhysicsStressTest.h"
-#include "QuadTreeCollision.h"
+#include "physics/QuadTreeCollision.h"
 
 namespace {
 
@@ -57,7 +57,7 @@ std::unique_ptr<vertex::tests::CollisionMethod> makeCollisionMethod(
     if (name == "grid") {
         return std::make_unique<vertex::tests::GridCollision>();
     }
-    if (name == "quadtree") {
+    if (name == "quad") {
         return std::make_unique<vertex::tests::QuadTreeCollision>();
     }
     return nullptr;
@@ -65,7 +65,7 @@ std::unique_ptr<vertex::tests::CollisionMethod> makeCollisionMethod(
 
 void printUsage(const char* program) {
     std::cerr << "usage: " << program << " <method> [entityCount]\n"
-              << "  method       brute | grid | quadtree\n"
+              << "  method       brute | grid | quad\n"
               << "  entityCount  number of bodies (default " << kDefaultEntityCount
               << ")\n";
 }
@@ -81,7 +81,7 @@ int runStressTest(vertex::tests::CollisionMethod& method, int entityCount) {
     if (!window.create(config.windowSize, title)) {
         return 1;
     }
-    window.setVsync(true);
+    window.setVsync(false);
 
     vertex::Renderer renderer;
     if (!renderer.init()) {

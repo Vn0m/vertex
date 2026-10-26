@@ -3,8 +3,8 @@
 #include <cstdint>
 #include <vector>
 
-#include "CollisionMethod.h"
-#include "SpatialGrid.h"
+#include "physics/CollisionMethod.h"
+#include "physics/SpatialGrid.h"
 
 namespace vertex::tests {
 
@@ -20,6 +20,7 @@ private:
     static constexpr float kCellSizeFactor = 2.0f;
 
     SpatialGrid mGrid;
+    // container with nearby physic bodies ids
     std::vector<std::uint32_t> mNeighbors;
 };
 

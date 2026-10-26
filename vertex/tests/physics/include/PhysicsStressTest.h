@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include "vertex/Physics.h"
+#include "physics/Physics.h"
 #include "vertex/Renderer.h"
 #include "vertex/Texture.h"
 #include "vertex/types.h"

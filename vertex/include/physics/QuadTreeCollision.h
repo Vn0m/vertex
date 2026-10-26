@@ -3,11 +3,10 @@
 #include <cstdint>
 #include <vector>
 
-#include "CollisionMethod.h"
-#include "QuadTree.h"
+#include "physics/CollisionMethod.h"
+#include "physics/QuadTree.h"
 
 namespace vertex::tests {
-
 
 class QuadTreeCollision : public CollisionMethod {
 public:
@@ -23,6 +22,8 @@ private:
 
     // Kept between frames so tree nodes and the neighbor buffer are reused.
     QuadTree mTree;
+
+    // ID in a node
     std::vector<std::uint32_t> mNeighbors;
 };
 

@@ -1,4 +1,4 @@
-#include "vertex/Physics.h"
+#include "physics/Physics.h"
 
 #include "glm/glm.hpp"
 
@@ -7,7 +7,7 @@ namespace vertex {
 BodyPhysics::BodyPhysics(const glm::vec2& position, const glm::vec2& size)
     : mPosition(position), mSize(size) {}
 
-// updated to account for window dimensions as rigid body (for now)
+// updated to account for window dimensions as rigid body
 void BodyPhysics::update(float deltaTime, const Dimensions& windowSize) {
     // handle knockback
     if (mIsKnockback) {
@@ -19,6 +19,8 @@ void BodyPhysics::update(float deltaTime, const Dimensions& windowSize) {
     }
 
     // velocity application
+    // x(T + deltaTime)
+    // x(T) + v(T) * deltaTime
     mPosition += mVelocity * deltaTime;
 
     // window dimensions

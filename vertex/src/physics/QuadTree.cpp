@@ -1,4 +1,4 @@
-#include "QuadTree.h"
+#include "physics/QuadTree.h"
 
 #include <algorithm>
 
@@ -91,8 +91,7 @@ void QuadTree::split(int nodeIndex) {
     allocateNode({mid.x, min.y}, {max.x, mid.y}, childDepth);
     allocateNode({min.x, mid.y}, {mid.x, max.y}, childDepth);
     allocateNode(mid, max, childDepth);
-
-    // Swap 
+    // Swap
     std::vector<Item>& buffer = mSplitBuffers[static_cast<std::size_t>(depth)];
     Node& node = mNodes[static_cast<std::size_t>(nodeIndex)];
     node.firstChild = firstChild;

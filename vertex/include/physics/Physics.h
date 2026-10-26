@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/vec2.hpp>
-#include "types.h"
+#include "vertex/types.h"
 
 namespace vertex {
 

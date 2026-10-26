@@ -1,6 +1,6 @@
 #include <vertex/Renderer.h>
 #include <vertex/Window.h>
-#include <vertex/Physics.h>
+#include <physics/Physics.h>
 #include <vertex/Tilemap.h>
 #include <iostream>
 
@@ -28,6 +28,7 @@ int main() {
     rectA.setVelocity({80.0f, 0.0f});
     rectB.setVelocity({-30.0f, 0.0f});
 
+    // get glfw time since initialization
     double lastTime = window.time();
     // size of the window
     vertex::Dimensions currentSize = window.framebufferSize();
@@ -39,6 +40,7 @@ int main() {
 
         const double now = window.time();
         const float moveSpeed = 200.0f;
+        // glfw elapse time from last request and current
         const float dt = static_cast<float>(now - lastTime);
         lastTime = now;
 

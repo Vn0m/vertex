@@ -6,7 +6,7 @@
 #include "physics/BruteForceCollision.h"
 #include "physics/CollisionMethod.h"
 #include "physics/GridCollision.h"
-#include "physics/PhysicsStressTest.h"
+#include "PhysicsStressTest.h"
 #include "physics/QuadTreeCollision.h"
 
 // Verifies every collision method produces exactly the same simulation as brute force.

@@ -1,16 +1,18 @@
-#include "QuadTreeCollision.h"
+#include "physics/QuadTreeCollision.h"
 
 #include <algorithm>
 
 #include <glm/common.hpp>
 
+// QuadTree Collision resolve function follow the same logic as the spatial Grid
 namespace vertex::tests {
 
+// @brief collision resolution method for Spatial Grid
+// @return none
 void QuadTreeCollision::resolve(std::vector<std::unique_ptr<BodyPhysics>>& bodies) {
     if (bodies.size() < 2) {
         return;
     }
-
 
     glm::vec2 minCorner = bodies[0]->getPosition();
     glm::vec2 maxCorner = minCorner;

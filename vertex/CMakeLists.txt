@@ -3,7 +3,12 @@ add_library(vertex STATIC
     src/Window.cpp
     src/Renderer.cpp
     src/Shader.cpp
-    src/Physics.cpp
+    src/physics/Physics.cpp
+    src/physics/QuadTree.cpp
+    src/physics/SpatialGrid.cpp
+    src/physics/BruteForceCollision.cpp
+    src/physics/GridCollision.cpp
+    src/physics/QuadTreeCollision.cpp
     src/Texture.cpp
     src/Events.cpp
     src/Tilemap.cpp
@@ -44,15 +49,12 @@ endforeach()
 # Headless check that every collision method matches brute force. Needs the physics
 # test's spawning/update code and the method sources, so it isn't in the loop above.
 add_executable(vertex_BroadPhaseTest
-    tests/BroadPhaseTest.cpp
-    tests/physics/PhysicsStressTest.cpp
-    tests/physics/BruteForceCollision.cpp
-    tests/physics/GridCollision.cpp
-    tests/physics/SpatialGrid.cpp
-    tests/physics/QuadTreeCollision.cpp
-    tests/physics/QuadTree.cpp
+    tests/physics/src/BroadPhaseTest.cpp
+    tests/physics/src/PhysicsStressTest.cpp
 )
 target_link_libraries(vertex_BroadPhaseTest PRIVATE vertex)
+target_include_directories(vertex_BroadPhaseTest PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests/physics/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/tests")
 
 if(MSVC)
     target_compile_options(vertex_BroadPhaseTest PRIVATE /W4)
@@ -62,24 +64,20 @@ endif()
 
 add_test(NAME vertex_BroadPhaseTest COMMAND vertex_BroadPhaseTest)
 
-add_executable(vertex_physics_test
-    tests/physics/PhysicsTestMain.cpp
-    tests/physics/PhysicsStressTest.cpp
-    tests/physics/BruteForceCollision.cpp
-    tests/physics/GridCollision.cpp
-    tests/physics/SpatialGrid.cpp
-    tests/physics/QuadTreeCollision.cpp
-    tests/physics/QuadTree.cpp
+add_executable(vertex_CollisionTest
+    tests/physics/src/PhysicsTestMain.cpp
+    tests/physics/src/PhysicsStressTest.cpp
 )
-target_link_libraries(vertex_physics_test PRIVATE vertex)
-target_compile_definitions(vertex_physics_test PRIVATE
+target_link_libraries(vertex_CollisionTest PRIVATE vertex)
+target_include_directories(vertex_CollisionTest PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests/physics/include")
+target_compile_definitions(vertex_CollisionTest PRIVATE
     VERTEX_TEST_ASSET_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../glade/assets"
 )
 
 if(MSVC)
-    target_compile_options(vertex_physics_test PRIVATE /W4)
+    target_compile_options(vertex_CollisionTest PRIVATE /W4)
 else()
-    target_compile_options(vertex_physics_test PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(vertex_CollisionTest PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
 add_executable(vertex_bench bench/SpriteBench.cpp)
