@@ -17,6 +17,7 @@ int main() {
     }
 
     vertex::Camera camera;
+    camera.zoom = 2.0f;
     vertex::Texture whiteSquare{std::string(GLADE_ASSET_DIR) + "/textures/white.png"};
 
     // create dummy rectangles
@@ -77,6 +78,7 @@ int main() {
         renderer.setViewport(framebuffer.width, framebuffer.height);
         camera.viewportSize = {framebuffer.width, framebuffer.height};
         camera.position = playerRect.getPosition() + playerRect.getSize() / 2.0f;
+        camera.clampTo({currentSize.width, currentSize.height});
 
         renderer.clear({0.10f, 0.11f, 0.15f, 1.0f});
         renderer.begin(camera);
