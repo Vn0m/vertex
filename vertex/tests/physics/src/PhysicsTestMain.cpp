@@ -87,7 +87,13 @@ int runStressTest(vertex::tests::CollisionMethod& method, int entityCount) {
     if (!renderer.init()) {
         return 1;
     }
-    renderer.setViewport(window.framebufferSize().width, window.framebufferSize().height);
+    const vertex::Dimensions framebuffer = window.framebufferSize();
+    renderer.setViewport(framebuffer.width, framebuffer.height);
+
+    vertex::Camera camera;
+    camera.viewportSize = {framebuffer.width, framebuffer.height};
+    camera.position = camera.viewportSize / 2.0f;
+
     vertex::Texture whiteSquare{std::string(VERTEX_TEST_ASSET_DIR) +
                                 "/textures/white.png"};
 
@@ -108,7 +114,7 @@ int runStressTest(vertex::tests::CollisionMethod& method, int entityCount) {
         const Clock::time_point drawStart = Clock::now();
 
         renderer.clear({0.10f, 0.11f, 0.15f, 1.0f});
-        renderer.begin();
+        renderer.begin(camera);
         vertex::tests::drawStressTest(renderer, whiteSquare, bodies);
         renderer.end();
         const Clock::time_point drawEnd = Clock::now();
