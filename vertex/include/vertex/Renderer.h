@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "Camera.h"
 #include "Texture.h"
 #include <cstddef>
 #include <memory>
@@ -22,7 +23,7 @@ public:
 
     void clear(const glm::vec4& color);
 
-    void begin();
+    void begin(const Camera& camera);
     // do not const tex because bind for texture is not const
     void drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
                     glm::vec4 tint = glm::vec4(1.0f));

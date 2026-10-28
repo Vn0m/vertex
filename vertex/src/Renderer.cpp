@@ -2,7 +2,6 @@
 
 #include <glad/gl.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -82,7 +81,8 @@ void Renderer::clear(const glm::vec4& color) {
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Renderer::begin() {
+void Renderer::begin(const Camera& camera) {
+    mProjection = camera.viewProjection();
     mVertices.clear();
     mTexture = nullptr;
     mDrawCalls = 0;
@@ -134,7 +134,6 @@ void Renderer::flush() {
 }
 
 void Renderer::setViewport(int width, int height) {
-    mProjection = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height),
-                             0.0f, -1.0f, 1.0f);
+    glViewport(0, 0, width, height);
 }
 }
