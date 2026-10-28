@@ -3,7 +3,12 @@ add_library(vertex STATIC
     src/Window.cpp
     src/Renderer.cpp
     src/Shader.cpp
-    src/Physics.cpp
+    src/physics/Physics.cpp
+    src/physics/QuadTree.cpp
+    src/physics/SpatialGrid.cpp
+    src/physics/BruteForceCollision.cpp
+    src/physics/GridCollision.cpp
+    src/physics/QuadTreeCollision.cpp
     src/Texture.cpp
     src/Events.cpp
     src/Tilemap.cpp
@@ -26,7 +31,7 @@ else()
     target_compile_options(vertex PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-foreach(_test SparseSet Registry Camera)
+foreach(_test SparseSet Registry Camera BroadPhase)
     set(_target vertex_${_test}Test)
 
     add_executable(${_target} tests/${_test}Test.cpp)
@@ -41,14 +46,18 @@ foreach(_test SparseSet Registry Camera)
     add_test(NAME ${_target} COMMAND ${_target})
 endforeach()
 
-add_executable(vertex_bench bench/SpriteBench.cpp)
-target_link_libraries(vertex_bench PRIVATE vertex)
-target_compile_definitions(vertex_bench PRIVATE
-    VERTEX_BENCH_ASSET_DIR="${CMAKE_CURRENT_SOURCE_DIR}/bench/assets"
-)
+foreach(_bench Sprite Collision)
+    set(_target vertex_${_bench}Bench)
 
-if(MSVC)
-    target_compile_options(vertex_bench PRIVATE /W4)
-else()
-    target_compile_options(vertex_bench PRIVATE -Wall -Wextra -Wpedantic)
-endif()
+    add_executable(${_target} bench/${_bench}Bench.cpp)
+    target_link_libraries(${_target} PRIVATE vertex)
+    target_compile_definitions(${_target} PRIVATE
+        VERTEX_BENCH_ASSET_DIR="${CMAKE_CURRENT_SOURCE_DIR}/bench/assets"
+    )
+
+    if(MSVC)
+        target_compile_options(${_target} PRIVATE /W4)
+    else()
+        target_compile_options(${_target} PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+endforeach()

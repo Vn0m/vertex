@@ -49,7 +49,7 @@ p95 of the next 500.
 ```sh
 cmake -B build-release -DCMAKE_BUILD_TYPE=Release
 cmake --build build-release --parallel
-./bin/vertex_bench 10000
+./bin/vertex_SpriteBench 10000
 ```
 
 ## License
