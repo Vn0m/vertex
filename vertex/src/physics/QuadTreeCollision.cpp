@@ -1,14 +1,11 @@
-#include "physics/QuadTreeCollision.h"
+#include "vertex/QuadTreeCollision.h"
 
 #include <algorithm>
 
 #include <glm/common.hpp>
 
-// QuadTree Collision resolve function follow the same logic as the spatial Grid
-namespace vertex::tests {
+namespace vertex {
 
-// @brief collision resolution method for Spatial Grid
-// @return none
 void QuadTreeCollision::resolve(std::vector<std::unique_ptr<BodyPhysics>>& bodies) {
     if (bodies.size() < 2) {
         return;
@@ -24,7 +21,7 @@ void QuadTreeCollision::resolve(std::vector<std::unique_ptr<BodyPhysics>>& bodie
         maxCorner = glm::max(maxCorner, position + size);
         largestSide = std::max({largestSide, size.x, size.y});
     }
-    // Leaves stop splitting near the body size,
+
     mTree.reset(minCorner, maxCorner - minCorner,
                 std::max(largestSide * kMinNodeSizeFactor, 1.0f));
 

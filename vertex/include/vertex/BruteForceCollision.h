@@ -1,9 +1,8 @@
 #pragma once
 
-// include virtual class
 #include "CollisionMethod.h"
 
-namespace vertex::tests {
+namespace vertex {
 
 class BruteForceCollision : public CollisionMethod {
 public:
@@ -11,7 +10,6 @@ public:
         return "brute";
     }
 
-    // @param takes a vector containing POINTERS to all physics objects.
     void resolve(std::vector<std::unique_ptr<BodyPhysics>>& bodies) override;
 };
 

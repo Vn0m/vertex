@@ -1,8 +1,8 @@
-#include "physics/QuadTree.h"
+#include "vertex/QuadTree.h"
 
 #include <algorithm>
 
-namespace vertex::tests {
+namespace vertex {
 
 namespace {
 
@@ -85,19 +85,16 @@ void QuadTree::split(int nodeIndex) {
     const int depth = mNodes[static_cast<std::size_t>(nodeIndex)].depth;
     const int childDepth = depth + 1;
 
-    // Children are allocated consecutively: top-left, top-right, bottom-left,
-    // bottom-right.
     const int firstChild = allocateNode(min, mid, childDepth);
     allocateNode({mid.x, min.y}, {max.x, mid.y}, childDepth);
     allocateNode({min.x, mid.y}, {mid.x, max.y}, childDepth);
     allocateNode(mid, max, childDepth);
-    // Swap
+
     std::vector<Item>& buffer = mSplitBuffers[static_cast<std::size_t>(depth)];
     Node& node = mNodes[static_cast<std::size_t>(nodeIndex)];
     node.firstChild = firstChild;
     buffer.swap(node.items);
 
-    // node now has children
     for (const Item& item : buffer) {
         insertInto(nodeIndex, item);
     }

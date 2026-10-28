@@ -3,10 +3,10 @@
 #include <cstdint>
 #include <vector>
 
-#include "physics/CollisionMethod.h"
-#include "physics/QuadTree.h"
+#include "CollisionMethod.h"
+#include "QuadTree.h"
 
-namespace vertex::tests {
+namespace vertex {
 
 class QuadTreeCollision : public CollisionMethod {
 public:
@@ -17,13 +17,10 @@ public:
     void resolve(std::vector<std::unique_ptr<BodyPhysics>>& bodies) override;
 
 private:
-    // Smallest node side (like grid); 1.0 measured ~25% faster than 2.0
     static constexpr float kMinNodeSizeFactor = 1.0f;
 
-    // Kept between frames so tree nodes and the neighbor buffer are reused.
+    // Kept between frames so tree nodes and the neighbor buffer reuse their memory.
     QuadTree mTree;
-
-    // ID in a node
     std::vector<std::uint32_t> mNeighbors;
 };
 

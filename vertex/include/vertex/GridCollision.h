@@ -3,10 +3,10 @@
 #include <cstdint>
 #include <vector>
 
-#include "physics/CollisionMethod.h"
-#include "physics/SpatialGrid.h"
+#include "CollisionMethod.h"
+#include "SpatialGrid.h"
 
-namespace vertex::tests {
+namespace vertex {
 
 class GridCollision : public CollisionMethod {
 public:
@@ -20,7 +20,6 @@ private:
     static constexpr float kCellSizeFactor = 2.0f;
 
     SpatialGrid mGrid;
-    // container with nearby physic bodies ids
     std::vector<std::uint32_t> mNeighbors;
 };
 
