@@ -16,7 +16,9 @@ int main() {
     if (!renderer.init()) {
         return 1;
     }
-    renderer.setViewport(window.framebufferSize().width, window.framebufferSize().height);
+
+    vertex::Camera camera;
+    camera.zoom = 2.0f;
     vertex::Texture whiteSquare{std::string(GLADE_ASSET_DIR) + "/textures/white.png"};
 
     // create dummy rectangles
@@ -74,8 +76,14 @@ int main() {
         glm::vec3 colorC = playerRect.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f)
                                                       : glm::vec3(1.0f, 1.0f, 1.0f);
 
+        const vertex::Dimensions framebuffer = window.framebufferSize();
+        renderer.setViewport(framebuffer.width, framebuffer.height);
+        camera.viewportSize = {framebuffer.width, framebuffer.height};
+        camera.position = playerRect.getPosition() + playerRect.getSize() / 2.0f;
+        camera.clampTo({currentSize.width, currentSize.height});
+
         renderer.clear({0.10f, 0.11f, 0.15f, 1.0f});
-        renderer.begin();
+        renderer.begin(camera);
         renderer.drawSprite(whiteSquare, rectA.getPosition(), rectA.getSize(),
                             {0, 0, 1, 1}, glm::vec4(colorA, 1.0f));
         renderer.drawSprite(whiteSquare, rectB.getPosition(), rectB.getSize(),
