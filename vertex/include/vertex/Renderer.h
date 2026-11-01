@@ -35,6 +35,10 @@ public:
 
     void setViewport(int width, int height);
 
+    enum class BlendMode { Alpha, Additive };
+    // flushes the pending batch, then switches the blend function
+    void setBlendMode(BlendMode mode);
+
 private:
     struct RenderVertex {
         glm::vec2 position;

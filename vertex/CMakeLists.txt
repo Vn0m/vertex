@@ -2,6 +2,7 @@ add_library(vertex STATIC
     src/Vertex.cpp
     src/Window.cpp
     src/Renderer.cpp
+    src/Particle.cpp
     src/Shader.cpp
     src/physics/Physics.cpp
     src/physics/QuadTree.cpp
