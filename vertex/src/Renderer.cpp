@@ -86,10 +86,13 @@ void Renderer::begin(const Camera& camera) {
     mVertices.clear();
     mTexture = nullptr;
     mDrawCalls = 0;
+    mSpritesDrawn = 0;
 }
 
 void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
                           glm::vec4 tint) {
+    ++mSpritesDrawn;
+
     if (mTexture != &tex || mVertices.size() == kMaxSprites * 4) {
         flush();
     }

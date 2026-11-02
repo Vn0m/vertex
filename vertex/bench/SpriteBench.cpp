@@ -30,6 +30,7 @@ double percentile(const std::vector<double>& sorted, double p) {
 
 int main(int argc, char** argv) {
     const int count = argc > 1 ? std::atoi(argv[1]) : 1000;
+    const float worldScale = argc > 2 ? static_cast<float>(std::atof(argv[2])) : 1.0f;
 
     vertex::Window window;
     if (!window.create({1280, 720}, "vertex bench")) {
@@ -45,18 +46,18 @@ int main(int argc, char** argv) {
     const vertex::Dimensions framebuffer = window.framebufferSize();
     renderer.setViewport(framebuffer.width, framebuffer.height);
 
+    const glm::vec2 world = glm::vec2{framebuffer.width, framebuffer.height} * worldScale;
+
     vertex::Camera camera;
     camera.viewportSize = {framebuffer.width, framebuffer.height};
-    camera.position = camera.viewportSize / 2.0f;
+    camera.position = world / 2.0f;
 
     vertex::Texture texture{std::string(VERTEX_BENCH_ASSET_DIR) + "/white.png"};
 
     vertex::Registry registry;
     std::mt19937 rng{42};
-    std::uniform_real_distribution<float> randomX{0.0f,
-                                                  static_cast<float>(framebuffer.width)};
-    std::uniform_real_distribution<float> randomY{0.0f,
-                                                  static_cast<float>(framebuffer.height)};
+    std::uniform_real_distribution<float> randomX{0.0f, world.x};
+    std::uniform_real_distribution<float> randomY{0.0f, world.y};
 
     for (int i = 0; i < count; ++i) {
         registry.add(registry.create(), Position{{randomX(rng), randomY(rng)}});
@@ -95,8 +96,10 @@ int main(int argc, char** argv) {
     }
 
     std::sort(samples.begin(), samples.end());
-    std::printf("sprites=%d draws=%d frames=%zu median=%.3fms p95=%.3fms max=%.3fms\n",
-                count, renderer.drawCalls(), samples.size(), percentile(samples, 0.50),
-                percentile(samples, 0.95), samples.back());
+    std::printf(
+        "sprites=%d scale=%.1f drawn=%d draws=%d frames=%zu median=%.3fms p95=%.3fms "
+        "max=%.3fms\n",
+        count, worldScale, renderer.spritesDrawn(), renderer.drawCalls(), samples.size(),
+        percentile(samples, 0.50), percentile(samples, 0.95), samples.back());
     return 0;
 }
