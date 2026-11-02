@@ -3,6 +3,7 @@
 #include <vertex/Window.h>
 #include <vertex/Physics.h>
 #include <vertex/Tilemap.h>
+#include <vertex/Audio.h>
 #include <iostream>
 
 int main() {
@@ -38,6 +39,20 @@ int main() {
     // size of the window
     vertex::Dimensions currentSize = window.framebufferSize();
 
+    vertex::Audio audio;
+    if (!audio.init()) {
+        std::cerr << "Failed to initialize audio engine" << std::endl;
+        return 1;
+    }
+
+    std::string soundPath = std::string(GLADE_ASSET_DIR) + "/audio/small_hit.wav";
+    if (!audio.loadSound(soundPath)) {
+        std::cerr << "Failed to load sound file: " << soundPath << std::endl;
+        return 1;
+    }
+
+    const float soundDelay = 0.15f;  // 150 ms
+
     while (!window.shouldClose()) {
         window.pollEvents();
 
@@ -64,10 +79,14 @@ int main() {
         // check for collision and print in terminal if true;
         if (rectA.resolveCollision(rectB))
             std::cout << "Basic Collision detected" << std::endl;
-        if (playerRect.resolveCollision(rectA))
+
+        bool hitA = playerRect.resolveCollision(rectA);
+        bool hitB = playerRect.resolveCollision(rectB);
+
+        if (hitA || hitB) {
             std::cout << "Player Collision detected" << std::endl;
-        if (playerRect.resolveCollision(rectB))
-            std::cout << "Player Collision detected" << std::endl;
+            audio.playDelay(soundDelay);
+        }
 
         // update position;
         rectA.update(dt, currentSize);
@@ -84,7 +103,7 @@ int main() {
         const int petals = glm::length(dir) > 0.0f ? 1 : 0;
         petalTrail.update(dt, playerRect.getPosition(), dir * moveSpeed, petals,
                           playerRect.getSize() / 2.0f);
-                          
+
         const vertex::Dimensions framebuffer = window.framebufferSize();
         renderer.setViewport(framebuffer.width, framebuffer.height);
         camera.viewportSize = {framebuffer.width, framebuffer.height};

@@ -135,7 +135,8 @@ void Renderer::flush() {
 
 void Renderer::setBlendMode(BlendMode mode) {
     flush();
-    glBlendFunc(GL_SRC_ALPHA, mode == BlendMode::Additive ? GL_ONE : GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA,
+                mode == BlendMode::Additive ? GL_ONE : GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Renderer::setViewport(int width, int height) {
