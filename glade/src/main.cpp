@@ -23,7 +23,7 @@ int main() {
     vertex::Texture whiteSquare{std::string(GLADE_ASSET_DIR) + "/textures/white.png"};
 
     vertex::Texture petalTexture{std::string(GLADE_ASSET_DIR) + "/textures/petal.png"};
-    vertex::ParticleEmitter petalTrail{300, 14.0f};
+    vertex::ParticleEmitter petalTrail{300, 30.0f};
 
     // create dummy rectangles
 
@@ -31,8 +31,8 @@ int main() {
     vertex::BodyPhysics rectB({500.0f, 300.0f}, {50.0f, 50.0f});
     vertex::BodyPhysics playerRect({20.0f, 20.0f}, {50.0f, 50.0f});
 
-    rectA.setVelocity({80.0f, 0.0f});
-    rectB.setVelocity({-30.0f, 0.0f});
+    rectA.setVelocity({0.0f, 0.0f});
+    rectB.setVelocity({0.0f, 0.0f});
 
     double lastTime = window.time();
     // size of the window
@@ -81,8 +81,8 @@ int main() {
                                                       : glm::vec3(1.0f, 1.0f, 1.0f);
 
         // petals only spawn while the player is moving
-        const int petals = glm::length(dir) > 0.0f ? 1 : 0;
-        petalTrail.update(dt, playerRect.getPosition(), dir * moveSpeed, petals,
+        const bool moving = glm::length(dir) > 0.0f;
+        petalTrail.update(dt, playerRect.getPosition(), dir * moveSpeed, moving,
                           playerRect.getSize() / 2.0f);
                           
         const vertex::Dimensions framebuffer = window.framebufferSize();

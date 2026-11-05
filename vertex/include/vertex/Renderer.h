@@ -27,6 +27,9 @@ public:
     // do not const tex because bind for texture is not const
     void drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
                     glm::vec4 tint = glm::vec4(1.0f));
+    // rotation is in radians, clockwise on screen, around the sprite's centre
+    void drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
+                    glm::vec4 tint, float rotation);
     void end();
 
     int drawCalls() const {
