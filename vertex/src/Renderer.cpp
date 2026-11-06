@@ -83,13 +83,23 @@ void Renderer::clear(const glm::vec4& color) {
 
 void Renderer::begin(const Camera& camera) {
     mProjection = camera.viewProjection();
+    mViewMin = camera.position - camera.halfExtent();
+    mViewMax = camera.position + camera.halfExtent();
     mVertices.clear();
     mTexture = nullptr;
     mDrawCalls = 0;
+    mSpritesDrawn = 0;
 }
 
 void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
                           glm::vec4 tint) {
+    const bool offScreen = pos.x + size.x < mViewMin.x || pos.x > mViewMax.x ||
+                           pos.y + size.y < mViewMin.y || pos.y > mViewMax.y;
+    if (offScreen) {
+        return;
+    }
+    ++mSpritesDrawn;
+
     if (mTexture != &tex || mVertices.size() == kMaxSprites * 4) {
         flush();
     }
