@@ -1,15 +1,18 @@
+#include <glm/gtc/constants.hpp>
 #include "vertex/Particle.h"
-
 #include "vertex/Renderer.h"
 #include "vertex/Texture.h"
 
 namespace vertex {
 
-ParticleEmitter::ParticleEmitter(std::size_t maxParticles, float size)
-    : mParticles(maxParticles), mSize(size) {}
+ParticleEmitter::ParticleEmitter(std::size_t maxParticles, float size,
+                                 float spawnInterval, float lifetime)
+    : mParticles(maxParticles),
+      mSize(size),
+      mSpawnInterval(spawnInterval),
+      mLifetime(lifetime) {}
 
 std::size_t ParticleEmitter::firstUnused() {
-    // search from the last used slot; the next dead one is usually right after it
     for (std::size_t i = mLastUsed; i < mParticles.size(); ++i) {
         if (mParticles[i].life <= 0.0f) {
             mLastUsed = i;
@@ -29,37 +32,46 @@ std::size_t ParticleEmitter::firstUnused() {
 
 void ParticleEmitter::respawn(Particle& p, glm::vec2 pos, glm::vec2 vel,
                               glm::vec2 offset) {
-    std::uniform_real_distribution<float> spread(-8.0f, 8.0f);
-    std::uniform_real_distribution<float> shade(0.7f, 1.0f);
-    std::uniform_real_distribution<float> drift(-20.0f, 20.0f);
+    auto rand = [this](float lo, float hi) {
+        return std::uniform_real_distribution<float>(lo, hi)(mRng);
+    };
 
-    const float s = shade(mRng);
-    p.position = pos + offset + glm::vec2(spread(mRng), spread(mRng));
+    const float s = rand(0.7f, 1.0f);
+    p.position = pos + offset + glm::vec2(rand(-8.0f, 8.0f), rand(-8.0f, 8.0f));
     p.color = glm::vec4(s, s, s, 1.0f);
-    p.life = 1.0f;
-    // trail behind the mover with a little sideways flutter
-    p.velocity = vel * 0.1f + glm::vec2(drift(mRng), drift(mRng));
+    p.life = mLifetime;
+    p.velocity = -vel * 0.1f + glm::vec2(rand(-20.0f, 20.0f), rand(-20.0f, 20.0f));
+    p.rotation = rand(0.0f, glm::two_pi<float>());
+    p.spinSpeed = rand(-3.0f, 3.0f);
 }
 
-void ParticleEmitter::update(float dt, glm::vec2 pos, glm::vec2 vel, int spawnCount,
+void ParticleEmitter::update(float dt, glm::vec2 pos, glm::vec2 vel, bool emitting,
                              glm::vec2 offset) {
-    for (int i = 0; i < spawnCount; ++i) {
-        respawn(mParticles[firstUnused()], pos, vel, offset);
+    if (emitting) {
+        mSpawnTimer += dt;
+        while (mSpawnTimer >= mSpawnInterval) {
+            mSpawnTimer -= mSpawnInterval;
+            respawn(mParticles[firstUnused()], pos, vel, offset);
+        }
+    } else {
+        mSpawnTimer = 0.0f;
     }
 
     for (Particle& p : mParticles) {
+        if (p.life <= 0.0f) continue;
+
         p.life -= dt;
-        if (p.life > 0.0f) {
-            p.position -= p.velocity * dt;
-            p.color.a -= dt * 1.0f;
-        }
+        p.position += p.velocity * dt;
+        p.rotation += p.spinSpeed * dt;
+        p.color.a = p.life / mLifetime;
     }
 }
 
 void ParticleEmitter::draw(Renderer& renderer, Texture& tex) const {
     for (const Particle& p : mParticles) {
         if (p.life > 0.0f) {
-            renderer.drawSprite(tex, p.position, {mSize, mSize}, {0, 0, 1, 1}, p.color);
+            renderer.drawSprite(tex, p.position, {mSize, mSize}, {0, 0, 1, 1}, p.color,
+                                p.rotation);
         }
     }
 }

@@ -2,6 +2,7 @@
 
 #include <glad/gl.h>
 #include <glm/glm.hpp>
+#include <cmath>
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -104,6 +105,36 @@ void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4
     mVertices.push_back({{pos.x, pos.y + size.y}, {uvMin.x, uvMax.y}, tint});
 }
 
+void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
+                          glm::vec4 tint, float rotation) {
+    if (rotation == 0.0f) {
+        drawSprite(tex, pos, size, uvRect, tint);
+        return;
+    }
+    if (mTexture != &tex || mVertices.size() == kMaxSprites * 4) {
+        flush();
+    }
+    mTexture = &tex;
+
+    const glm::vec2 uvMin{uvRect.x, uvRect.y};
+    const glm::vec2 uvMax = uvMin + glm::vec2{uvRect.z, uvRect.w};
+
+    const glm::vec2 half = size * 0.5f;
+    const glm::vec2 center = pos + half;
+    const float c = std::cos(rotation);
+    const float s = std::sin(rotation);
+
+    // rotation matrix
+    auto corner = [&](glm::vec2 local) {
+        return center + glm::vec2{local.x * c - local.y * s, local.x * s + local.y * c};
+    };
+
+    mVertices.push_back({corner({-half.x, -half.y}), uvMin, tint});
+    mVertices.push_back({corner({half.x, -half.y}), {uvMax.x, uvMin.y}, tint});
+    mVertices.push_back({corner({half.x, half.y}), uvMax, tint});
+    mVertices.push_back({corner({-half.x, half.y}), {uvMin.x, uvMax.y}, tint});
+}
+
 void Renderer::end() {
     flush();
 }
@@ -135,7 +166,8 @@ void Renderer::flush() {
 
 void Renderer::setBlendMode(BlendMode mode) {
     flush();
-    glBlendFunc(GL_SRC_ALPHA, mode == BlendMode::Additive ? GL_ONE : GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA,
+                mode == BlendMode::Additive ? GL_ONE : GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Renderer::setViewport(int width, int height) {

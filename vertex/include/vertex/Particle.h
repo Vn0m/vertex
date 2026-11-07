@@ -15,18 +15,19 @@ struct Particle {
     glm::vec2 velocity{0.0f};
     glm::vec4 color{1.0f};
     float life{0.0f};
+    float rotation{0.0f};   // radians
+    float spinSpeed{0.0f};  // radians/sec
 };
 
 // Fixed-size pool of particles.
-// Not a Renderer: it only calls Renderer::drawSprite
 class ParticleEmitter {
 public:
-    explicit ParticleEmitter(std::size_t maxParticles = 500, float size = 10.0f);
+    explicit ParticleEmitter(std::size_t maxParticles = 500, float size = 10.0f,
+                             float spawnInterval = 0.08f, float lifetime = 1.5f);
 
-    // Spawns spawnCount particles around pos, then ages and moves the live ones.
-    // vel is the emitter's velocity; particles trail behind it.
-    void update(float dt, glm::vec2 pos, glm::vec2 vel, int spawnCount,
+    void update(float dt, glm::vec2 pos, glm::vec2 vel, bool emitting,
                 glm::vec2 offset = glm::vec2(0.0f));
+
     void draw(Renderer& renderer, Texture& tex) const;
 
     std::size_t aliveCount() const;
@@ -38,6 +39,9 @@ private:
     std::vector<Particle> mParticles;
     std::size_t mLastUsed{0};
     float mSize;
+    float mSpawnInterval;
+    float mLifetime;
+    float mSpawnTimer{0.0f};
     std::mt19937 mRng{std::random_device{}()};
 };
 

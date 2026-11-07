@@ -81,10 +81,10 @@ int main() {
                                                       : glm::vec3(1.0f, 1.0f, 1.0f);
 
         // petals only spawn while the player is moving
-        const int petals = glm::length(dir) > 0.0f ? 1 : 0;
-        petalTrail.update(dt, playerRect.getPosition(), dir * moveSpeed, petals,
+        const bool moving = glm::length(dir) > 0.0f;
+        petalTrail.update(dt, playerRect.getPosition(), dir * moveSpeed, moving,
                           playerRect.getSize() / 2.0f);
-                          
+
         const vertex::Dimensions framebuffer = window.framebufferSize();
         renderer.setViewport(framebuffer.width, framebuffer.height);
         camera.viewportSize = {framebuffer.width, framebuffer.height};
