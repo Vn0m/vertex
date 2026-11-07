@@ -36,6 +36,10 @@ public:
         return mDrawCalls;
     }
 
+    int spritesDrawn() const {
+        return mSpritesDrawn;
+    }
+
     void setViewport(int width, int height);
 
     enum class BlendMode { Alpha, Additive };
@@ -64,6 +68,9 @@ private:
     std::vector<RenderVertex> mVertices;
     Texture* mTexture{nullptr};
     int mDrawCalls{0};
+    int mSpritesDrawn{0};
+    glm::vec2 mViewMin{0.0f};
+    glm::vec2 mViewMax{0.0f};
 };
 
 }

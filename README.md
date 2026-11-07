@@ -43,6 +43,14 @@ sprite, batched issues one draw call per frame.
 | 5,000 | 7.86 ms | 0.57 ms | 9.56 ms | 1.49 ms |
 | 10,000 | 16.62 ms | 0.65 ms | 17.32 ms | 1.47 ms |
 
+Culling skips sprites outside the camera. Sprites are spread over a world 2x wider
+and 2x taller than the screen, so about a quarter are visible.
+
+| Sprites | Drawn | Unculled median | Culled median | Unculled p95 | Culled p95 |
+|--------:|------:|----------------:|--------------:|-------------:|-----------:|
+| 10,000 | 2,596 | 0.69 ms | 0.58 ms | 3.01 ms | 3.33 ms |
+| 50,000 | 12,826 | 3.98 ms | 1.34 ms | 5.91 ms | 3.03 ms |
+
 Apple M3, Release build, vsync off. 60 warmup frames discarded, then median and
 p95 of the next 500.
 
@@ -50,6 +58,7 @@ p95 of the next 500.
 cmake -B build-release -DCMAKE_BUILD_TYPE=Release
 cmake --build build-release --parallel
 ./bin/vertex_SpriteBench 10000
+./bin/vertex_SpriteBench 50000 2
 ```
 
 ## License
