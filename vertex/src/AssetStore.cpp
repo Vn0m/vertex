@@ -28,7 +28,7 @@ namespace vertex {
             return nullptr;
         }
 
-        auto [it,inserted] = mTilemaps.try_emplace(tilemapName, tilemapDesc.tilesize, tiles);
+        auto [it,inserted] = mTilemaps.try_emplace(tilemapName, tilemapDesc.tileSize, tiles);
         Tilemap& map = it->second;
 
         bool ok = map.valid();
@@ -45,5 +45,13 @@ namespace vertex {
             return nullptr;
         }
         return &map;
+    }
+
+    Tilemap* AssetStore::tilemap(const std::string &tilemapName) {
+        auto it = mTilemaps.find(tilemapName);
+        if(it == mTilemaps.end()) {
+            return nullptr;
+        }
+        return &it->second;
     }
 }

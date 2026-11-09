@@ -1,10 +1,13 @@
 #pragma once
 #include <unordered_map>
+#include <string>
+#include <vector>
 #include "vertex/Tilemap.h"
+
 namespace vertex {
 
 struct TilemapDesc {
-    int tilesize{16};
+    int tileSize{16};
     std::string tileset;
     std::vector<std::string> layers;
     std::string collision;
@@ -21,6 +24,10 @@ public:
     Tilemap* loadTilemap(const std::string& tilemapName,const TilemapDesc& tilemapDesc);
     // looks up tilemap in storage, returns nullptr if none found
     Tilemap* tilemap(const std::string& tilemapName);
+
+    AssetStore() = default;
+    AssetStore(const AssetStore&) = delete;
+    AssetStore& operator=(const AssetStore&) = delete;
 
 private:
     std::unordered_map<std::string, Texture> mTextures;
