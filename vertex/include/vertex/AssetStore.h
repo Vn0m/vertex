@@ -18,7 +18,7 @@ public:
     Texture* texture(const std::string& textureName);
 
     // loads tilemap into tilemap storage
-    Tilemap* loadTilemap(const std::string& tilemapName,const std::string& tilemapPath);
+    Tilemap* loadTilemap(const std::string& tilemapName,const TilemapDesc& tilemapDesc);
     // looks up tilemap in storage, returns nullptr if none found
     Tilemap* tilemap(const std::string& tilemapName);
 
