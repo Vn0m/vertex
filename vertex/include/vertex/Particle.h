@@ -31,7 +31,6 @@ struct EmitterSettings {
     float minBrightness{1.0f};
 };
 
-// Fixed-size pool of particles.
 class ParticleEmitter {
 public:
     explicit ParticleEmitter(const EmitterSettings& settings);

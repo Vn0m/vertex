@@ -88,7 +88,6 @@ int main() {
         glm::vec3 colorC = playerRect.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f)
                                                       : glm::vec3(1.0f, 1.0f, 1.0f);
 
-        // petals only spawn while the player is moving
         const bool moving = glm::length(dir) > 0.0f;
         petalTrail.update(dt, playerRect.getPosition() + playerRect.getSize() / 2.0f,
                           dir * moveSpeed, moving);
