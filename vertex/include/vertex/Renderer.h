@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include "Camera.h"
 #include "Texture.h"
+#include <array>
 #include <cstddef>
 #include <memory>
 #include <vector>
@@ -27,6 +28,9 @@ public:
     // do not const tex because bind for texture is not const
     void drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
                     glm::vec4 tint = glm::vec4(1.0f));
+    // rotation is in radians, around the sprite's centre
+    void drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
+                    glm::vec4 tint, float rotation);
     void end();
 
     int drawCalls() const {
@@ -39,6 +43,9 @@ public:
 
     void setViewport(int width, int height);
 
+    enum class BlendMode { Alpha, Additive };
+    void setBlendMode(BlendMode mode);
+
 private:
     struct RenderVertex {
         glm::vec2 position;
@@ -49,6 +56,9 @@ private:
     // sprites per batch
     static constexpr std::size_t kMaxSprites = 10000;
 
+    bool visible(glm::vec2 min, glm::vec2 max) const;
+    void pushQuad(Texture& tex, const std::array<glm::vec2, 4>& corners, glm::vec4 uvRect,
+                  glm::vec4 tint);
     void flush();
 
     std::unique_ptr<Shader> mShader;

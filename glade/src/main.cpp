@@ -1,3 +1,4 @@
+#include <vertex/Particle.h>
 #include <vertex/Renderer.h>
 #include <vertex/Window.h>
 #include <vertex/Physics.h>
@@ -20,6 +21,17 @@ int main() {
     vertex::Camera camera;
     camera.zoom = 2.0f;
     vertex::Texture whiteSquare{std::string(GLADE_ASSET_DIR) + "/textures/white.png"};
+
+    vertex::Texture petalTexture{std::string(GLADE_ASSET_DIR) + "/textures/petal.png"};
+    vertex::EmitterSettings petals;
+    petals.maxParticles = 300;
+    petals.size = 14.0f;
+    petals.jitter = 8.0f;
+    petals.inheritVelocity = -0.1f;
+    petals.spread = 20.0f;
+    petals.spin = 3.0f;
+    petals.minBrightness = 0.7f;
+    vertex::ParticleEmitter petalTrail{petals};
 
     // create dummy rectangles
 
@@ -76,6 +88,10 @@ int main() {
         glm::vec3 colorC = playerRect.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f)
                                                       : glm::vec3(1.0f, 1.0f, 1.0f);
 
+        const bool moving = glm::length(dir) > 0.0f;
+        petalTrail.update(dt, playerRect.getPosition() + playerRect.getSize() / 2.0f,
+                          dir * moveSpeed, moving);
+
         const vertex::Dimensions framebuffer = window.framebufferSize();
         renderer.setViewport(framebuffer.width, framebuffer.height);
         camera.viewportSize = {framebuffer.width, framebuffer.height};
@@ -88,6 +104,8 @@ int main() {
                             {0, 0, 1, 1}, glm::vec4(colorA, 1.0f));
         renderer.drawSprite(whiteSquare, rectB.getPosition(), rectB.getSize(),
                             {0, 0, 1, 1}, glm::vec4(colorB, 1.0f));
+        // petals go behind the player
+        petalTrail.draw(renderer, petalTexture);
         renderer.drawSprite(whiteSquare, playerRect.getPosition(), playerRect.getSize(),
                             {0, 0, 1, 1}, glm::vec4(colorC, 1.0f));
         renderer.end();
