@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include "Camera.h"
 #include "Texture.h"
+#include <array>
 #include <cstddef>
 #include <memory>
 #include <vector>
@@ -56,6 +57,9 @@ private:
     // sprites per batch
     static constexpr std::size_t kMaxSprites = 10000;
 
+    bool visible(glm::vec2 min, glm::vec2 max) const;
+    void pushQuad(Texture& tex, const std::array<glm::vec2, 4>& corners, glm::vec4 uvRect,
+                  glm::vec4 tint);
     void flush();
 
     std::unique_ptr<Shader> mShader;

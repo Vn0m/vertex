@@ -94,25 +94,11 @@ void Renderer::begin(const Camera& camera) {
 
 void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
                           glm::vec4 tint) {
-    const bool offScreen = pos.x + size.x < mViewMin.x || pos.x > mViewMax.x ||
-                           pos.y + size.y < mViewMin.y || pos.y > mViewMax.y;
-    if (offScreen) {
+    if (!visible(pos, pos + size)) {
         return;
     }
-    ++mSpritesDrawn;
-
-    if (mTexture != &tex || mVertices.size() == kMaxSprites * 4) {
-        flush();
-    }
-    mTexture = &tex;
-
-    const glm::vec2 uvMin{uvRect.x, uvRect.y};
-    const glm::vec2 uvMax = uvMin + glm::vec2{uvRect.z, uvRect.w};
-
-    mVertices.push_back({pos, uvMin, tint});
-    mVertices.push_back({{pos.x + size.x, pos.y}, {uvMax.x, uvMin.y}, tint});
-    mVertices.push_back({pos + size, uvMax, tint});
-    mVertices.push_back({{pos.x, pos.y + size.y}, {uvMin.x, uvMax.y}, tint});
+    pushQuad(tex, {pos, {pos.x + size.x, pos.y}, pos + size, {pos.x, pos.y + size.y}},
+             uvRect, tint);
 }
 
 void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4 uvRect,
@@ -124,14 +110,30 @@ void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4
 
     const glm::vec2 half = size * 0.5f;
     const glm::vec2 center = pos + half;
-
     const float radius = glm::length(half);
-    const bool offScreen =
-        center.x + radius < mViewMin.x || center.x - radius > mViewMax.x ||
-        center.y + radius < mViewMin.y || center.y - radius > mViewMax.y;
-    if (offScreen) {
+    if (!visible(center - radius, center + radius)) {
         return;
     }
+
+    const float c = std::cos(rotation);
+    const float s = std::sin(rotation);
+    auto rotate = [&](glm::vec2 local) {
+        return center + glm::vec2{local.x * c - local.y * s, local.x * s + local.y * c};
+    };
+
+    pushQuad(tex,
+             {rotate({-half.x, -half.y}), rotate({half.x, -half.y}), rotate(half),
+              rotate({-half.x, half.y})},
+             uvRect, tint);
+}
+
+bool Renderer::visible(glm::vec2 min, glm::vec2 max) const {
+    return max.x >= mViewMin.x && min.x <= mViewMax.x && max.y >= mViewMin.y &&
+           min.y <= mViewMax.y;
+}
+
+void Renderer::pushQuad(Texture& tex, const std::array<glm::vec2, 4>& corners,
+                        glm::vec4 uvRect, glm::vec4 tint) {
     ++mSpritesDrawn;
 
     if (mTexture != &tex || mVertices.size() == kMaxSprites * 4) {
@@ -142,18 +144,10 @@ void Renderer::drawSprite(Texture& tex, glm::vec2 pos, glm::vec2 size, glm::vec4
     const glm::vec2 uvMin{uvRect.x, uvRect.y};
     const glm::vec2 uvMax = uvMin + glm::vec2{uvRect.z, uvRect.w};
 
-    const float c = std::cos(rotation);
-    const float s = std::sin(rotation);
-
-    // rotation matrix
-    auto corner = [&](glm::vec2 local) {
-        return center + glm::vec2{local.x * c - local.y * s, local.x * s + local.y * c};
-    };
-
-    mVertices.push_back({corner({-half.x, -half.y}), uvMin, tint});
-    mVertices.push_back({corner({half.x, -half.y}), {uvMax.x, uvMin.y}, tint});
-    mVertices.push_back({corner({half.x, half.y}), uvMax, tint});
-    mVertices.push_back({corner({-half.x, half.y}), {uvMin.x, uvMax.y}, tint});
+    mVertices.push_back({corners[0], uvMin, tint});
+    mVertices.push_back({corners[1], {uvMax.x, uvMin.y}, tint});
+    mVertices.push_back({corners[2], uvMax, tint});
+    mVertices.push_back({corners[3], {uvMin.x, uvMax.y}, tint});
 }
 
 void Renderer::end() {
