@@ -121,6 +121,32 @@ public:
         }
     }
 
+    template <typename A, typename B, typename C, typename Func>
+    void each(Func fn) {
+        SparseSet<A>& setA = pool<A>();
+        SparseSet<B>& setB = pool<B>();
+        SparseSet<C>& setC = pool<C>();
+
+        const std::vector<std::uint32_t>* smallest = &setA.owners();
+        if (setB.size() < smallest->size()) {
+            smallest = &setB.owners();
+        }
+        if (setC.size() < smallest->size()) {
+            smallest = &setC.owners();
+        }
+        const std::vector<std::uint32_t> owners = *smallest;
+
+        for (std::uint32_t id : owners) {
+            A* a = setA.get(id);
+            B* b = setB.get(id);
+            C* c = setC.get(id);
+            if (a == nullptr || b == nullptr || c == nullptr) {
+                continue;
+            }
+            fn(Entity{id, mGenerations[id]}, *a, *b, *c);
+        }
+    }
+
 private:
     template <typename T>
     SparseSet<T>& pool() {
