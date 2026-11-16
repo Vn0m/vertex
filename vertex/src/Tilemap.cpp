@@ -153,8 +153,8 @@ bool Tilemap::loadCollision(const std::string& path) {
     if (mValid == false) return false;
     std::vector<int> cells;
 
-    int width = 1;
-    int height = 1;
+    int width = 0;
+    int height = 0;
     if (!parseCsv(path, cells, width, height)) {
         return false;
     }
@@ -162,7 +162,7 @@ bool Tilemap::loadCollision(const std::string& path) {
         return false;
     }
     for (size_t i = 0; i < cells.size(); i++) {
-        const int tile = cells[i];
+        const int tile = cells[i] + 1;
         if (tile < 0 || tile > 255) {
             const int row = static_cast<int>(i) / width + 1;
             const int column = static_cast<int>(i) % width + 1;
