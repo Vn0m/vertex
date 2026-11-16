@@ -16,8 +16,8 @@ public:
     bool init();
     void shutdown();
 
-    // from file
-    bool loadSound(const std::string& filepath);
+    // from file; stream for long tracks
+    bool loadSound(const std::string& filepath, bool stream = false);
 
     // playback
     void play();

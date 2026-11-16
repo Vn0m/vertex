@@ -35,7 +35,7 @@ void Audio::shutdown() {
     }
 }
 
-bool Audio::loadSound(const std::string& filepath) {
+bool Audio::loadSound(const std::string& filepath, bool stream) {
     if (!mInitialized && !init()) {
         return false;
     }
@@ -45,8 +45,9 @@ bool Audio::loadSound(const std::string& filepath) {
         mLoaded = false;
     }
 
-    ma_result result =
-        ma_sound_init_from_file(&mEngine, filepath.c_str(), 0, nullptr, nullptr, &mSound);
+    const ma_uint32 flags = stream ? MA_SOUND_FLAG_STREAM : 0;
+    ma_result result = ma_sound_init_from_file(&mEngine, filepath.c_str(), flags, nullptr,
+                                               nullptr, &mSound);
 
     if (result != MA_SUCCESS) {
         std::fprintf(stderr, "vertex::Audio: Failed to load sound '%s'(%d)\n",
