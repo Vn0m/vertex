@@ -14,6 +14,7 @@ add_library(vertex STATIC
     src/Events.cpp
     src/Tilemap.cpp
     src/Audio.cpp
+    src/AssetStore.cpp
 )
 
 target_include_directories(vertex PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")

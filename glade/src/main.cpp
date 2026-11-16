@@ -24,7 +24,15 @@ int main() {
     vertex::Texture whiteSquare{std::string(GLADE_ASSET_DIR) + "/textures/white.png"};
 
     vertex::Texture petalTexture{std::string(GLADE_ASSET_DIR) + "/textures/petal.png"};
-    vertex::ParticleEmitter petalTrail{300, 14.0f};
+    vertex::EmitterSettings petals;
+    petals.maxParticles = 300;
+    petals.size = 14.0f;
+    petals.jitter = 8.0f;
+    petals.inheritVelocity = -0.1f;
+    petals.spread = 20.0f;
+    petals.spin = 3.0f;
+    petals.minBrightness = 0.7f;
+    vertex::ParticleEmitter petalTrail{petals};
 
     // create dummy rectangles
 
@@ -99,10 +107,9 @@ int main() {
         glm::vec3 colorC = playerRect.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f)
                                                       : glm::vec3(1.0f, 1.0f, 1.0f);
 
-        // petals only spawn while the player is moving
         const bool moving = glm::length(dir) > 0.0f;
-        petalTrail.update(dt, playerRect.getPosition(), dir * moveSpeed, moving,
-                          playerRect.getSize() / 2.0f);
+        petalTrail.update(dt, playerRect.getPosition() + playerRect.getSize() / 2.0f,
+                          dir * moveSpeed, moving);
 
         const vertex::Dimensions framebuffer = window.framebufferSize();
         renderer.setViewport(framebuffer.width, framebuffer.height);
