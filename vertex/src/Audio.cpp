@@ -63,7 +63,6 @@ void Audio::play() {
     if (!mLoaded) {
         return;
     }
-    // Rewind to beginning and play
     ma_sound_seek_to_pcm_frame(&mSound, 0);
     ma_sound_start(&mSound);
     mLastPlay = glfwGetTime();
