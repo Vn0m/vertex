@@ -17,6 +17,10 @@ struct Velocity {
     float dy{0};
 };
 
+struct Health {
+    int hp{0};
+};
+
 void createsDistinctEntities() {
     vertex::Registry registry;
 
@@ -217,6 +221,64 @@ void eachPicksTheSmallerPoolEitherWay() {
     CHECK(visits == 2);
 }
 
+void eachThreeComponentsMatchesIntersection() {
+    vertex::Registry registry;
+
+    const vertex::Entity all = registry.create();
+    const vertex::Entity noHealth = registry.create();
+    const vertex::Entity noVelocity = registry.create();
+    const vertex::Entity onlyHealth = registry.create();
+
+    registry.add(all, Position{1, 1});
+    registry.add(all, Velocity{5, 5});
+    registry.add(all, Health{3});
+    registry.add(noHealth, Position{2, 2});
+    registry.add(noHealth, Velocity{6, 6});
+    registry.add(noVelocity, Position{3, 3});
+    registry.add(noVelocity, Health{4});
+    registry.add(onlyHealth, Health{5});
+
+    int visits = 0;
+    registry.each<Position, Velocity, Health>(
+        [&](vertex::Entity e, Position& p, Velocity& v, Health& h) {
+            CHECK(e == all);
+            CHECK(p.x == 1);
+            CHECK(v.dx == 5);
+            CHECK(h.hp == 3);
+            visits++;
+        });
+
+    CHECK(visits == 1);
+}
+
+void eachThreePicksTheSmallestPoolInAnyPosition() {
+    vertex::Registry registry;
+    std::vector<vertex::Entity> entities;
+
+    for (int i = 0; i < 100; ++i) {
+        const vertex::Entity e = registry.create();
+        registry.add(e, Position{0, 0});
+        registry.add(e, Velocity{0, 0});
+        entities.push_back(e);
+    }
+    registry.add(entities[7], Health{1});
+    registry.add(entities[42], Health{2});
+
+    int visits = 0;
+    auto count = [&](vertex::Entity, auto&, auto&, auto&) { visits++; };
+
+    registry.each<Health, Position, Velocity>(count);
+    CHECK(visits == 2);
+
+    visits = 0;
+    registry.each<Position, Health, Velocity>(count);
+    CHECK(visits == 2);
+
+    visits = 0;
+    registry.each<Position, Velocity, Health>(count);
+    CHECK(visits == 2);
+}
+
 void componentsSurviveNeighbourDestruction() {
     vertex::Registry registry;
     std::vector<vertex::Entity> entities;
@@ -297,6 +359,8 @@ int main() {
     eachOneComponent();
     eachTwoComponentsMatchesIntersection();
     eachPicksTheSmallerPoolEitherWay();
+    eachThreeComponentsMatchesIntersection();
+    eachThreePicksTheSmallestPoolInAnyPosition();
     componentsSurviveNeighbourDestruction();
     tenThousandEntitiesRejectEveryStaleHandle();
 
