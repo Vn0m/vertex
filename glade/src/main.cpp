@@ -42,9 +42,9 @@ int main() {
     vertex::Tilemap* level =
         assets.loadTilemap("demo", {16,
                                     "dungeon",
-                                    {gameAsset("maps/demo_Base_Layer.csv"),
-                                     gameAsset("maps/demo_Decoration_Layer.csv")},
-                                    gameAsset("maps/demo_Collision.csv")});
+                                    {gameAsset("maps/demo_base_layer.csv"),
+                                     gameAsset("maps/demo_decoration_layer.csv")},
+                                    gameAsset("maps/demo_collision_layer.csv")});
     if (!level) {
         return 1;
     }
