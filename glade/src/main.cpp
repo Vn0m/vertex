@@ -6,6 +6,7 @@
 #include <vertex/AssetStore.h>
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 namespace {
 std::string gameAsset(const std::string& relativePath) {
@@ -51,8 +52,8 @@ int main() {
     const float tileSize = static_cast<float>(level->getTileSize());
     const glm::vec2 worldSize{level->getWidth() * tileSize,
                               level->getHeight() * tileSize};
-    const vertex::Dimensions worldBounds{static_cast<std::int32_t>(worldSize.x),
-                                         static_cast<std::int32_t>(worldSize.y)};
+    // const vertex::Dimensions worldBounds{static_cast<std::int32_t>(worldSize.x),
+    //                                     static_cast<std::int32_t>(worldSize.y)};
     vertex::EmitterSettings petals;
     petals.maxParticles = 300;
     petals.size = 14.0f;
@@ -81,7 +82,7 @@ int main() {
 
         const double now = window.time();
         const float moveSpeed = 200.0f;
-        const float dt = static_cast<float>(now - lastTime);
+        const float dt = std::min(static_cast<float>(now - lastTime), 0.05f);
         lastTime = now;
 
         // movement vector allows for diagonal movement
@@ -106,9 +107,9 @@ int main() {
             std::cout << "Player Collision detected" << std::endl;
 
         // update position;
-        rectA.update(dt, worldBounds);
-        rectB.update(dt, worldBounds);
-        playerRect.update(dt, worldBounds);
+        rectA.update(dt, *level);
+        rectB.update(dt, *level);
+        playerRect.update(dt, *level);
         glm::vec3 colorA = rectA.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f)
                                                  : glm::vec3(1.0f, 1.0f, 1.0f);
         glm::vec3 colorB = rectB.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f)
