@@ -7,9 +7,7 @@ namespace vertex {
 BodyPhysics::BodyPhysics(const glm::vec2& position, const glm::vec2& size)
     : mPosition(position), mSize(size) {}
 
-// updated to account for window dimensions as rigid body
-void BodyPhysics::update(float deltaTime, const Dimensions& windowSize) {
-    // handle knockback
+void BodyPhysics::tickKnockback(float deltaTime) {
     if (mIsKnockback) {
         mKnockbackTimer -= deltaTime;
         if (mKnockbackTimer <= 0.0f) {
@@ -17,6 +15,34 @@ void BodyPhysics::update(float deltaTime, const Dimensions& windowSize) {
             mVelocity = mOriginalVelocity;
         }
     }
+}
+
+void BodyPhysics::update(float deltaTime, const Tilemap& map) {
+    tickKnockback(deltaTime);
+
+    const float tileSize = static_cast<float>(map.getTileSize());
+
+    for (int axis = 0; axis < 2; ++axis) {
+        mPosition[axis] += mVelocity[axis] * deltaTime;
+        if (!map.overlapsSolid(mPosition, mSize)) {
+            continue;
+        }
+
+        if (mVelocity[axis] > 0.0f) {
+            const float wall = std::floor((mPosition[axis] + mSize[axis]) / tileSize);
+            mPosition[axis] = wall * tileSize - mSize[axis];
+        } else if (mVelocity[axis] < 0.0f) {
+            const float wall = std::floor(mPosition[axis] / tileSize);
+            mPosition[axis] = (wall + 1.0f) * tileSize;
+        }
+
+        mVelocity[axis] = 0.0f;
+    }
+}
+
+// updated to account for window dimensions as rigid body
+void BodyPhysics::update(float deltaTime, const Dimensions& windowSize) {
+    tickKnockback(deltaTime);
 
     // velocity application
     // x(T + deltaTime)

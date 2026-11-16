@@ -2,6 +2,7 @@
 
 #include <glm/vec2.hpp>
 #include "vertex/types.h"
+#include "vertex/Tilemap.h"
 
 namespace vertex {
 
@@ -16,7 +17,7 @@ public:
     BodyPhysics& operator=(const BodyPhysics&) = delete;
 
     // tilemap
-    void update(float deltaTime,const Tilemap& map);
+    void update(float deltaTime, const Tilemap& map);
 
     // update to include window dimensions
     void update(float deltaTime, const Dimensions& windowSize);
@@ -35,7 +36,7 @@ public:
 
 private:
     void tickKnockback(float deltaTime);
-    
+
     glm::vec2 mPosition;
     glm::vec2 mSize;
     glm::vec2 mVelocity{0.0f, 0.0f};
