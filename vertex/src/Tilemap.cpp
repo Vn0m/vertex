@@ -161,15 +161,16 @@ bool Tilemap::loadCollision(const std::string& path) {
     if (!CheckSize(width, height, path)) {
         return false;
     }
-    for (size_t i = 0; i < cells.size(); i++) {
-        const int tile = cells[i] + 1;
-        if (tile < 0 || tile > 255) {
+    for (std::size_t i = 0; i < cells.size(); i++) {
+        const int value = cells[i] + 1;
+        if (value < 0 || value > 255) {
             const int row = static_cast<int>(i) / width + 1;
             const int column = static_cast<int>(i) % width + 1;
             std::cerr << path << ": row " << row << ", column " << column << ": tile "
-                      << tile << " out of range (under 0 or over 255)\n";
+                      << cells[i] << " out of range (-1 to 254)\n";
             return false;
         }
+        cells[i] = value;
     }
     if (mWidth == 0) {
         mWidth = width;
