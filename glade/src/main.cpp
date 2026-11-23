@@ -1,4 +1,7 @@
+#include <vertex/Components.h>
 #include <vertex/Particle.h>
+#include <vertex/Registry.h>
+#include <vertex/RenderSystem.h>
 #include <vertex/Renderer.h>
 #include <vertex/Window.h>
 #include <vertex/Physics.h>
@@ -41,6 +44,12 @@ int main() {
 
     rectA.setVelocity({80.0f, 0.0f});
     rectB.setVelocity({-30.0f, 0.0f});
+
+    vertex::Registry registry;
+    const vertex::Entity player = registry.create();
+    registry.add(player, vertex::Transform{playerRect.getPosition()});
+    registry.add(player,
+                 vertex::Sprite{&whiteSquare, {0, 0, 1, 1}, playerRect.getSize()});
 
     double lastTime = window.time();
     // size of the window
@@ -88,6 +97,11 @@ int main() {
         glm::vec3 colorC = playerRect.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f)
                                                       : glm::vec3(1.0f, 1.0f, 1.0f);
 
+        // bridge until physics moves onto the ECS
+        vertex::Transform& playerTransform = *registry.get<vertex::Transform>(player);
+        playerTransform.position = playerRect.getPosition();
+        registry.get<vertex::Sprite>(player)->tint = glm::vec4(colorC, 1.0f);
+
         const bool moving = glm::length(dir) > 0.0f;
         petalTrail.update(dt, playerRect.getPosition() + playerRect.getSize() / 2.0f,
                           dir * moveSpeed, moving);
@@ -95,7 +109,8 @@ int main() {
         const vertex::Dimensions framebuffer = window.framebufferSize();
         renderer.setViewport(framebuffer.width, framebuffer.height);
         camera.viewportSize = {framebuffer.width, framebuffer.height};
-        camera.position = playerRect.getPosition() + playerRect.getSize() / 2.0f;
+        camera.position =
+            playerTransform.position + registry.get<vertex::Sprite>(player)->size / 2.0f;
         camera.clampTo({currentSize.width, currentSize.height});
 
         renderer.clear({0.10f, 0.11f, 0.15f, 1.0f});
@@ -106,8 +121,7 @@ int main() {
                             {0, 0, 1, 1}, glm::vec4(colorB, 1.0f));
         // petals go behind the player
         petalTrail.draw(renderer, petalTexture);
-        renderer.drawSprite(whiteSquare, playerRect.getPosition(), playerRect.getSize(),
-                            {0, 0, 1, 1}, glm::vec4(colorC, 1.0f));
+        vertex::drawSprites(registry, renderer);
         renderer.end();
 
         window.swapBuffers();
