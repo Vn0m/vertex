@@ -1,118 +1,173 @@
 #include <vertex/Audio.h>
 
-#include <GLFW/glfw3.h>
-#include <cstdio>
+#include <miniaudio.h>
+
+#include <chrono>
+#include <iostream>
+#include <unordered_map>
 
 namespace vertex {
+
+namespace {
+
+using Clock = std::chrono::steady_clock;
+
+struct Sound {
+    ma_sound sound;
+    Clock::time_point lastPlay{};
+    bool hasPlayed{false};
+};
+
+void playFromStart(Sound& sound) {
+    ma_sound_seek_to_pcm_frame(&sound.sound, 0);
+    ma_sound_start(&sound.sound);
+    sound.lastPlay = Clock::now();
+    sound.hasPlayed = true;
+}
+
+void stopAndRewind(Sound& sound) {
+    ma_sound_stop(&sound.sound);
+    ma_sound_seek_to_pcm_frame(&sound.sound, 0);
+}
+
+}
+
+struct Audio::Impl {
+    ma_engine engine;
+    bool initialized{false};
+    std::unordered_map<std::string, std::unique_ptr<Sound>> sounds;
+
+    Sound* find(const std::string& soundName) {
+        auto it = sounds.find(soundName);
+        return it == sounds.end() ? nullptr : it->second.get();
+    }
+
+    Sound* lookup(const std::string& soundName) {
+        Sound* sound = find(soundName);
+        if (!sound && initialized) {
+            std::cerr << "audio: no sound named '" << soundName << "'\n";
+        }
+        return sound;
+    }
+};
+
+Audio::Audio() : mImpl(std::make_unique<Impl>()) {}
 
 Audio::~Audio() {
     shutdown();
 }
 
 bool Audio::init() {
-    if (mInitialized) return true;
+    if (mImpl->initialized) {
+        return true;
+    }
 
-    ma_result result = ma_engine_init(nullptr, &mEngine);
+    ma_result result = ma_engine_init(nullptr, &mImpl->engine);
     if (result != MA_SUCCESS) {
-        std::fprintf(stderr, "vertex::Audio Failed to Initialize miniaudio engine (%d)\n",
-                     result);
+        std::cerr << "audio: no audio device (" << result
+                  << "), continuing without sound\n";
         return false;
     }
 
-    mInitialized = true;
+    mImpl->initialized = true;
     return true;
 }
 
 void Audio::shutdown() {
-    if (mLoaded) {
-        ma_sound_uninit(&mSound);
-        mLoaded = false;
+    for (auto& [name, sound] : mImpl->sounds) {
+        ma_sound_uninit(&sound->sound);
     }
+    mImpl->sounds.clear();
 
-    if (mInitialized) {
-        ma_engine_uninit(&mEngine);
-        mInitialized = false;
+    if (mImpl->initialized) {
+        ma_engine_uninit(&mImpl->engine);
+        mImpl->initialized = false;
     }
 }
 
-bool Audio::loadSound(const std::string& filepath, bool stream) {
-    if (!mInitialized && !init()) {
+bool Audio::available() const {
+    return mImpl->initialized;
+}
+
+bool Audio::loadSound(const std::string& soundName, const std::string& filepath,
+                      bool stream) {
+    if (!available()) {
+        std::cerr << "audio: sound '" << soundName << "' not loaded (no audio device)\n";
         return false;
     }
-
-    if (mLoaded) {
-        ma_sound_uninit(&mSound);
-        mLoaded = false;
+    if (hasSound(soundName)) {
+        return true;
     }
 
+    auto sound = std::make_unique<Sound>();
     const ma_uint32 flags = stream ? MA_SOUND_FLAG_STREAM : 0;
-    ma_result result = ma_sound_init_from_file(&mEngine, filepath.c_str(), flags, nullptr,
-                                               nullptr, &mSound);
-
+    ma_result result = ma_sound_init_from_file(&mImpl->engine, filepath.c_str(), flags,
+                                               nullptr, nullptr, &sound->sound);
     if (result != MA_SUCCESS) {
-        std::fprintf(stderr, "vertex::Audio: Failed to load sound '%s'(%d)\n",
-                     filepath.c_str(), result);
+        std::cerr << "audio: sound '" << soundName << "' not loaded from '" << filepath
+                  << "' (" << result << ")\n";
         return false;
     }
 
-    mLoaded = true;
+    mImpl->sounds.emplace(soundName, std::move(sound));
     return true;
 }
 
-void Audio::play() {
-    if (!mLoaded) {
-        return;
-    }
-    ma_sound_seek_to_pcm_frame(&mSound, 0);
-    ma_sound_start(&mSound);
-    mLastPlay = glfwGetTime();
+bool Audio::hasSound(const std::string& soundName) const {
+    return mImpl->find(soundName) != nullptr;
 }
 
-void Audio::playDelay(float delay) {
-    if (!mLoaded) {
-        return;
-    }
-
-    const double now = glfwGetTime();
-    if (now - mLastPlay >= static_cast<double>(delay)) {
-        play();
+void Audio::play(const std::string& soundName) {
+    if (Sound* sound = mImpl->lookup(soundName)) {
+        playFromStart(*sound);
     }
 }
 
-void Audio::stop() {
-    if (!mLoaded) {
+void Audio::playDelay(const std::string& soundName, float delaySeconds) {
+    Sound* sound = mImpl->lookup(soundName);
+    if (!sound) {
         return;
     }
 
-    ma_sound_stop(&mSound);
-    ma_sound_seek_to_pcm_frame(&mSound, 0);
+    if (sound->hasPlayed) {
+        const std::chrono::duration<float> elapsed = Clock::now() - sound->lastPlay;
+        if (elapsed.count() < delaySeconds) {
+            return;
+        }
+    }
+    playFromStart(*sound);
+}
+
+void Audio::stop(const std::string& soundName) {
+    if (Sound* sound = mImpl->lookup(soundName)) {
+        stopAndRewind(*sound);
+    }
 }
 
 void Audio::stopAll() {
-    if (!mInitialized) {
-        return;
+    for (auto& [name, sound] : mImpl->sounds) {
+        stopAndRewind(*sound);
     }
-
-    ma_engine_stop(&mEngine);
-    ma_engine_start(&mEngine);
 }
 
-float Audio::getDuration() const {
-    if (!mLoaded) {
-        return 0.0f;
+void Audio::setLooping(const std::string& soundName, bool loop) {
+    if (Sound* sound = mImpl->lookup(soundName)) {
+        ma_sound_set_looping(&sound->sound, loop ? MA_TRUE : MA_FALSE);
     }
+}
 
+void Audio::setVolume(const std::string& soundName, float volume) {
+    if (Sound* sound = mImpl->lookup(soundName)) {
+        ma_sound_set_volume(&sound->sound, volume);
+    }
+}
+
+float Audio::getDuration(const std::string& soundName) const {
     float durationSeconds = 0.0f;
-    ma_sound_get_length_in_seconds(const_cast<ma_sound*>(&mSound), &durationSeconds);
-    return durationSeconds;
-}
-
-void Audio::setLooping(bool loop) {
-    if (!mLoaded) {
-        return;
+    if (Sound* sound = mImpl->lookup(soundName)) {
+        ma_sound_get_length_in_seconds(&sound->sound, &durationSeconds);
     }
-
-    ma_sound_set_looping(&mSound, loop ? MA_TRUE : MA_FALSE);
+    return durationSeconds;
 }
 
 }

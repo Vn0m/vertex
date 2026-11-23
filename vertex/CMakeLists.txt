@@ -20,8 +20,8 @@ add_library(vertex STATIC
 target_include_directories(vertex PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 target_link_libraries(vertex
-    PUBLIC  glm miniaudio
-    PRIVATE glad glfw stb
+    PUBLIC  glm
+    PRIVATE glad glfw stb miniaudio
 )
 
 target_compile_definitions(vertex PRIVATE
@@ -34,7 +34,7 @@ else()
     target_compile_options(vertex PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-foreach(_test SparseSet Registry Camera BroadPhase)
+foreach(_test SparseSet Registry Camera BroadPhase Audio)
     set(_target vertex_${_test}Test)
 
     add_executable(${_target} tests/${_test}Test.cpp)

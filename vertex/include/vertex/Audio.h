@@ -1,34 +1,34 @@
 #pragma once
 
-#include <miniaudio.h>
+#include <memory>
 #include <string>
 
 namespace vertex {
 
 class Audio {
 public:
-    Audio() = default;
+    Audio();
     ~Audio();
-
     Audio(const Audio&) = delete;
     Audio& operator=(const Audio&) = delete;
 
     bool init();
     void shutdown();
-    bool loadSound(const std::string& filepath, bool stream = false);
-    void play();
-    void playDelay(float delay);
-    void stop();
+    bool available() const;
+    bool loadSound(const std::string& soundName, const std::string& filepath,
+                   bool stream = false);
+    bool hasSound(const std::string& soundName) const;
+    void play(const std::string& soundName);
+    void playDelay(const std::string& soundName, float delaySeconds);
+    void stop(const std::string& soundName);
     void stopAll();
-
-    float getDuration() const;
-    void setLooping(bool loop);
+    void setLooping(const std::string& soundName, bool loop);
+    void setVolume(const std::string& soundName, float volume);
+    float getDuration(const std::string& soundName) const;
 
 private:
-    ma_engine mEngine;
-    ma_sound mSound;
-    double mLastPlay{0.0};
-    bool mInitialized{false};
-    bool mLoaded{false};
+    struct Impl;
+    std::unique_ptr<Impl> mImpl;
 };
+
 }
