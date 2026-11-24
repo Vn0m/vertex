@@ -3,6 +3,7 @@
 #include <vertex/Window.h>
 #include <vertex/Physics.h>
 #include <vertex/Tilemap.h>
+#include <vertex/Audio.h>
 #include <iostream>
 
 int main() {
@@ -43,8 +44,14 @@ int main() {
     rectB.setVelocity({-30.0f, 0.0f});
 
     double lastTime = window.time();
-    // size of the window
     vertex::Dimensions currentSize = window.framebufferSize();
+
+    vertex::Audio audio;
+    if (audio.init()) {
+        audio.loadSound("hit", std::string(GLADE_ASSET_DIR) + "/audio/small_hit.wav");
+    }
+
+    const float soundDelay = 0.15f;  // 150 ms
 
     while (!window.shouldClose()) {
         window.pollEvents();
@@ -69,15 +76,18 @@ int main() {
         }
         playerRect.setVelocity(dir * moveSpeed);
 
-        // check for collision and print in terminal if true;
+        // check for collision
         if (rectA.resolveCollision(rectB))
             std::cout << "Basic Collision detected" << std::endl;
-        if (playerRect.resolveCollision(rectA))
-            std::cout << "Player Collision detected" << std::endl;
-        if (playerRect.resolveCollision(rectB))
-            std::cout << "Player Collision detected" << std::endl;
 
-        // update position;
+        bool hitA = playerRect.resolveCollision(rectA);
+        bool hitB = playerRect.resolveCollision(rectB);
+
+        if (hitA || hitB) {
+            std::cout << "Player Collision detected" << std::endl;
+            audio.playDelay("hit", soundDelay);
+        }
+
         rectA.update(dt, currentSize);
         rectB.update(dt, currentSize);
         playerRect.update(dt, currentSize);
@@ -104,7 +114,6 @@ int main() {
                             {0, 0, 1, 1}, glm::vec4(colorA, 1.0f));
         renderer.drawSprite(whiteSquare, rectB.getPosition(), rectB.getSize(),
                             {0, 0, 1, 1}, glm::vec4(colorB, 1.0f));
-        // petals go behind the player
         petalTrail.draw(renderer, petalTexture);
         renderer.drawSprite(whiteSquare, playerRect.getPosition(), playerRect.getSize(),
                             {0, 0, 1, 1}, glm::vec4(colorC, 1.0f));
