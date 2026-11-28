@@ -78,8 +78,7 @@ int main() {
     vertex::Registry registry;
     const vertex::Entity player = registry.create();
     registry.add(player, vertex::Transform{playerRect.getPosition()});
-    registry.add(player,
-                 vertex::Sprite{whiteSquare,{0, 0, 1, 1}, playerRect.getSize()});
+    registry.add(player, vertex::Sprite{whiteSquare, {0, 0, 1, 1}, playerRect.getSize()});
 
     double lastTime = window.time();
 
