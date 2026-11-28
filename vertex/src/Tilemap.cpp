@@ -2,8 +2,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <string_view>
 #include <charconv>
+#include <cmath>
 #include <iostream>
 #include <algorithm>
 namespace {
@@ -153,23 +153,24 @@ bool Tilemap::loadCollision(const std::string& path) {
     if (mValid == false) return false;
     std::vector<int> cells;
 
-    int width = 1;
-    int height = 1;
+    int width = 0;
+    int height = 0;
     if (!parseCsv(path, cells, width, height)) {
         return false;
     }
     if (!CheckSize(width, height, path)) {
         return false;
     }
-    for (size_t i = 0; i < cells.size(); i++) {
-        const int tile = cells[i];
-        if (tile < 0 || tile > 255) {
+    for (std::size_t i = 0; i < cells.size(); i++) {
+        const int value = cells[i] + 1;
+        if (value < 0 || value > 255) {
             const int row = static_cast<int>(i) / width + 1;
             const int column = static_cast<int>(i) % width + 1;
             std::cerr << path << ": row " << row << ", column " << column << ": tile "
-                      << tile << " out of range (under 0 or over 255)\n";
+                      << cells[i] << " out of range (-1 to 254)\n";
             return false;
         }
+        cells[i] = value;
     }
     if (mWidth == 0) {
         mWidth = width;

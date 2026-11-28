@@ -5,6 +5,8 @@
 
 namespace vertex {
 
+class Tilemap;
+
 class BodyPhysics {
 public:
     BodyPhysics(const glm::vec2& position, const glm::vec2& size);
@@ -12,6 +14,9 @@ public:
 
     BodyPhysics(const BodyPhysics&) = delete;
     BodyPhysics& operator=(const BodyPhysics&) = delete;
+
+    // tilemap
+    void update(float deltaTime, const Tilemap& map);
 
     // update to include window dimensions
     void update(float deltaTime, const Dimensions& windowSize);
@@ -29,6 +34,8 @@ public:
     }
 
 private:
+    void tickKnockback(float deltaTime);
+
     glm::vec2 mPosition;
     glm::vec2 mSize;
     glm::vec2 mVelocity{0.0f, 0.0f};

@@ -6,9 +6,17 @@
 #include <vertex/Window.h>
 #include <vertex/Physics.h>
 #include <vertex/Tilemap.h>
+#include <vertex/AssetStore.h>
 #include <vertex/Audio.h>
 #include <iostream>
+#include <string>
+#include <algorithm>
 
+namespace {
+std::string gameAsset(const std::string& relativePath) {
+    return std::string(GLADE_ASSET_DIR) + "/" + relativePath;
+}
+}
 int main() {
     vertex::Window window;
     if (!window.create({800, 600}, "Glade")) {
@@ -21,12 +29,33 @@ int main() {
     if (!renderer.init()) {
         return 1;
     }
+    vertex::AssetStore assets;
 
     vertex::Camera camera;
     camera.zoom = 2.0f;
-    vertex::Texture whiteSquare{std::string(GLADE_ASSET_DIR) + "/textures/white.png"};
 
-    vertex::Texture petalTexture{std::string(GLADE_ASSET_DIR) + "/textures/petal.png"};
+    vertex::Texture* whiteSquare =
+        assets.loadTexture("white", gameAsset("textures/white.png"));
+    vertex::Texture* petalTexture =
+        assets.loadTexture("petal", gameAsset("textures/petal.png"));
+    vertex::Texture* tileset =
+        assets.loadTexture("dungeon", gameAsset("tileset/Dungeon_Tileset.png"));
+
+    if (!whiteSquare || !petalTexture || !tileset) {
+        return 1;
+    }
+    vertex::Tilemap* level =
+        assets.loadTilemap("demo", {16,
+                                    "dungeon",
+                                    {gameAsset("maps/demo_base_layer.csv"),
+                                     gameAsset("maps/demo_decoration_layer.csv")},
+                                    gameAsset("maps/demo_collision_layer.csv")});
+    if (!level) {
+        return 1;
+    }
+    const float tileSize = static_cast<float>(level->getTileSize());
+    const glm::vec2 worldSize{level->getWidth() * tileSize,
+                              level->getHeight() * tileSize};
     vertex::EmitterSettings petals;
     petals.maxParticles = 300;
     petals.size = 14.0f;
@@ -39,9 +68,9 @@ int main() {
 
     // create dummy rectangles
 
-    vertex::BodyPhysics rectA({250.0f, 300.0f}, {50.0f, 50.0f});
-    vertex::BodyPhysics rectB({500.0f, 300.0f}, {50.0f, 50.0f});
-    vertex::BodyPhysics playerRect({20.0f, 20.0f}, {50.0f, 50.0f});
+    vertex::BodyPhysics rectA({3 * tileSize, 9 * tileSize}, {14.0f, 14.0f});
+    vertex::BodyPhysics rectB({14 * tileSize, 9 * tileSize}, {14.0f, 14.0f});
+    vertex::BodyPhysics playerRect({2 * tileSize, 2 * tileSize}, {14.0f, 14.0f});
 
     rectA.setVelocity({80.0f, 0.0f});
     rectB.setVelocity({-30.0f, 0.0f});
@@ -49,11 +78,9 @@ int main() {
     vertex::Registry registry;
     const vertex::Entity player = registry.create();
     registry.add(player, vertex::Transform{playerRect.getPosition()});
-    registry.add(player,
-                 vertex::Sprite{&whiteSquare, {0, 0, 1, 1}, playerRect.getSize()});
+    registry.add(player, vertex::Sprite{whiteSquare, {0, 0, 1, 1}, playerRect.getSize()});
 
     double lastTime = window.time();
-    vertex::Dimensions currentSize = window.framebufferSize();
 
     vertex::Audio audio;
     if (audio.init()) {
@@ -69,7 +96,7 @@ int main() {
 
         const double now = window.time();
         const float moveSpeed = 200.0f;
-        const float dt = static_cast<float>(now - lastTime);
+        const float dt = std::min(static_cast<float>(now - lastTime), 0.05f);
         lastTime = now;
 
         // movement vector allows for diagonal movement
@@ -97,9 +124,9 @@ int main() {
             audio.playDelay("hit", soundDelay);
         }
 
-        rectA.update(dt, currentSize);
-        rectB.update(dt, currentSize);
-        playerRect.update(dt, currentSize);
+        rectA.update(dt, *level);
+        rectB.update(dt, *level);
+        playerRect.update(dt, *level);
         glm::vec3 colorA = rectA.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f)
                                                  : glm::vec3(1.0f, 1.0f, 1.0f);
         glm::vec3 colorB = rectB.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f)
@@ -121,15 +148,19 @@ int main() {
         camera.viewportSize = {framebuffer.width, framebuffer.height};
         camera.position =
             playerTransform.position + registry.get<vertex::Sprite>(player)->size / 2.0f;
-        camera.clampTo({currentSize.width, currentSize.height});
+        camera.clampTo(worldSize);
+
+        const vertex::Rect view{camera.position - camera.halfExtent(),
+                                camera.halfExtent() * 2.0f};
 
         renderer.clear({0.10f, 0.11f, 0.15f, 1.0f});
         renderer.begin(camera);
-        renderer.drawSprite(whiteSquare, rectA.getPosition(), rectA.getSize(),
+        level->draw(renderer, view);
+        renderer.drawSprite(*whiteSquare, rectA.getPosition(), rectA.getSize(),
                             {0, 0, 1, 1}, glm::vec4(colorA, 1.0f));
-        renderer.drawSprite(whiteSquare, rectB.getPosition(), rectB.getSize(),
+        renderer.drawSprite(*whiteSquare, rectB.getPosition(), rectB.getSize(),
                             {0, 0, 1, 1}, glm::vec4(colorB, 1.0f));
-        petalTrail.draw(renderer, petalTexture);
+        petalTrail.draw(renderer, *petalTexture);
         vertex::drawSprites(registry, renderer);
         renderer.end();
 
