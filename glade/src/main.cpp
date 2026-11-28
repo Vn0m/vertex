@@ -56,8 +56,6 @@ int main() {
     const float tileSize = static_cast<float>(level->getTileSize());
     const glm::vec2 worldSize{level->getWidth() * tileSize,
                               level->getHeight() * tileSize};
-    // const vertex::Dimensions worldBounds{static_cast<std::int32_t>(worldSize.x),
-    //                                     static_cast<std::int32_t>(worldSize.y)};
     vertex::EmitterSettings petals;
     petals.maxParticles = 300;
     petals.size = 14.0f;

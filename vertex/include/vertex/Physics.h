@@ -2,7 +2,6 @@
 
 #include <glm/vec2.hpp>
 #include "vertex/types.h"
-#include "vertex/Tilemap.h"
 
 namespace vertex {
 
