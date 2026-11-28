@@ -1,9 +1,13 @@
+#include <vertex/Components.h>
 #include <vertex/Particle.h>
+#include <vertex/Registry.h>
+#include <vertex/RenderSystem.h>
 #include <vertex/Renderer.h>
 #include <vertex/Window.h>
 #include <vertex/Physics.h>
 #include <vertex/Tilemap.h>
 #include <vertex/AssetStore.h>
+#include <vertex/Audio.h>
 #include <iostream>
 #include <string>
 #include <algorithm>
@@ -73,7 +77,20 @@ int main() {
     rectA.setVelocity({80.0f, 0.0f});
     rectB.setVelocity({-30.0f, 0.0f});
 
+    vertex::Registry registry;
+    const vertex::Entity player = registry.create();
+    registry.add(player, vertex::Transform{playerRect.getPosition()});
+    registry.add(player,
+                 vertex::Sprite{whiteSquare,{0, 0, 1, 1}, playerRect.getSize()});
+
     double lastTime = window.time();
+
+    vertex::Audio audio;
+    if (audio.init()) {
+        audio.loadSound("hit", std::string(GLADE_ASSET_DIR) + "/audio/small_hit.wav");
+    }
+
+    const float soundDelay = 0.15f;  // 150 ms
 
     while (!window.shouldClose()) {
         window.pollEvents();
@@ -98,15 +115,18 @@ int main() {
         }
         playerRect.setVelocity(dir * moveSpeed);
 
-        // check for collision and print in terminal if true;
+        // check for collision
         if (rectA.resolveCollision(rectB))
             std::cout << "Basic Collision detected" << std::endl;
-        if (playerRect.resolveCollision(rectA))
-            std::cout << "Player Collision detected" << std::endl;
-        if (playerRect.resolveCollision(rectB))
-            std::cout << "Player Collision detected" << std::endl;
 
-        // update position;
+        bool hitA = playerRect.resolveCollision(rectA);
+        bool hitB = playerRect.resolveCollision(rectB);
+
+        if (hitA || hitB) {
+            std::cout << "Player Collision detected" << std::endl;
+            audio.playDelay("hit", soundDelay);
+        }
+
         rectA.update(dt, *level);
         rectB.update(dt, *level);
         playerRect.update(dt, *level);
@@ -117,6 +137,11 @@ int main() {
         glm::vec3 colorC = playerRect.isKnockedBack() ? glm::vec3(1.0f, 0.0f, 0.0f)
                                                       : glm::vec3(1.0f, 1.0f, 1.0f);
 
+        // bridge until physics moves onto the ECS
+        vertex::Transform& playerTransform = *registry.get<vertex::Transform>(player);
+        playerTransform.position = playerRect.getPosition();
+        registry.get<vertex::Sprite>(player)->tint = glm::vec4(colorC, 1.0f);
+
         const bool moving = glm::length(dir) > 0.0f;
         petalTrail.update(dt, playerRect.getPosition() + playerRect.getSize() / 2.0f,
                           dir * moveSpeed, moving);
@@ -124,7 +149,8 @@ int main() {
         const vertex::Dimensions framebuffer = window.framebufferSize();
         renderer.setViewport(framebuffer.width, framebuffer.height);
         camera.viewportSize = {framebuffer.width, framebuffer.height};
-        camera.position = playerRect.getPosition() + playerRect.getSize() / 2.0f;
+        camera.position =
+            playerTransform.position + registry.get<vertex::Sprite>(player)->size / 2.0f;
         camera.clampTo(worldSize);
 
         const vertex::Rect view{camera.position - camera.halfExtent(),
@@ -137,10 +163,8 @@ int main() {
                             {0, 0, 1, 1}, glm::vec4(colorA, 1.0f));
         renderer.drawSprite(*whiteSquare, rectB.getPosition(), rectB.getSize(),
                             {0, 0, 1, 1}, glm::vec4(colorB, 1.0f));
-        // petals go behind the player
         petalTrail.draw(renderer, *petalTexture);
-        renderer.drawSprite(*whiteSquare, playerRect.getPosition(), playerRect.getSize(),
-                            {0, 0, 1, 1}, glm::vec4(colorC, 1.0f));
+        vertex::drawSprites(registry, renderer);
         renderer.end();
 
         window.swapBuffers();

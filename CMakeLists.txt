@@ -18,6 +18,7 @@ add_subdirectory(vendor/glfw)
 add_subdirectory(vendor/glad)
 add_subdirectory(vendor/glm)
 add_subdirectory(vendor/stb)
+add_subdirectory(vendor/miniaudio)
 
 enable_testing()
 
